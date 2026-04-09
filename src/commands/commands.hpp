@@ -18,8 +18,8 @@ namespace commands
   inline std::unique_ptr< cli::Menu > init()
   {
     auto rootMenu = std::make_unique< cli::Menu >("mycli");
-    rootMenu->Insert("sum", sum);
-    rootMenu->Insert("sub", sub);
+    rootMenu->Insert("sum", static_cast<std::function<void(std::ostream&, int, int)>>(sum));
+    rootMenu->Insert("sub", static_cast<std::function<void(std::ostream&, int, int)>>(sub));
     return rootMenu;
   }
 }
