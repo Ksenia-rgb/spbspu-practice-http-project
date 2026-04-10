@@ -24,5 +24,5 @@ namespace http
       std::string error;
     };
   }
-#endif
 }
+#endif
