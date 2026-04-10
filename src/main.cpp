@@ -4,6 +4,7 @@
 #include <cli/loopscheduler.h>
 #include "repl/repl.hpp"
 
+// Код для примера
 int main()
 {
   std::unique_ptr< cli::Menu > rootMenu = http::repl::init();
