@@ -11,11 +11,12 @@ namespace session
   {
   public:
     Session();
-    Session(const Session& rhs);
+    Session(const Session&) = delete;
     Session(Session&& rhs);
+    Session(const Session& rhs, const std::string& name);
     explicit Session(std::string name);
     ~Session();
-    Session operator=(const Session& rhs);
+    Session operator=(const Session&) = delete;
     Session operator=(Session&& rhs);
 
     std::string getName() const noexcept;
