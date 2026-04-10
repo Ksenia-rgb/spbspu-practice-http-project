@@ -28,8 +28,8 @@ namespace session
     void setMark(const std::string& reqName, const std::string& markName);
     void setComment(const std::string& comment);
     void setComment(const std::string& reqName, const std::string& comment);
-    void addRequest(const std::string& name, const models::Request& request);
-    void changeRequest(const std::string& name, const models::Request& request);
+    void addRequest(const std::string& name, const http::models::Request& request);
+    void changeRequest(const std::string& name, const http::models::Request& request);
 
   private:
     std::string name_ = "Unknown";
