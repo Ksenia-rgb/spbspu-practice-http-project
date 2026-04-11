@@ -23,8 +23,8 @@ namespace http
 
       std::string getName() const noexcept;
       void setName();
-      Session removeSession();
-      Session switchSession(const std::string& name);
+      void removeSession();
+      void switchSession(const std::string& name);
       const json& getHistory(const std::string& name, size_t limit = 10) const noexcept;
       Session clone(const std::string& name) const;
       void save();
