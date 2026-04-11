@@ -24,6 +24,7 @@ namespace session
     Session removeSession();
     Session switchSession(const std::string& name);
     const json& getHistory(const std::string& name, size_t limit = 10) const noexcept;
+    Session clone(const std::string& name) const;
     void save();
     void setMark(const std::string& markName);
     void setMark(const std::string& reqName, const std::string& markName);
