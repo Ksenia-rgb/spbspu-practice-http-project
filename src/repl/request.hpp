@@ -11,16 +11,44 @@ namespace http
 {
   namespace repl
   {
-    void req(std::ostream& out);
-    void show(std::ostream& out, const std::string& name, const models::Request& request);
-    inline std::unique_ptr< cli::Menu > reqInit(std::string& name, models::Request& request)
+    namespace req
     {
-      auto reqMenu = std::make_unique< cli::Menu >("req command");
-      reqMenu->Insert("show", [&name, &request](std::ostream& out)
+      void req(std::ostream& out);
+      void show(std::ostream& out, const std::string& name, const models::Request& request);
+      void setName(std::ostream& out, std::string& name, const std::string& new_name);
+      void setMethod(std::ostream& out, models::Request& request, const std::string& method);
+      void setURL(std::ostream& out, models::Request& request, const std::string& url);
+      void setHeaders(std::ostream& out, models::Request& request, const std::string& headers);
+      void setBody(std::ostream& out, models::Request& request, const std::string& body);
+      inline std::unique_ptr< cli::Menu > reqInit(std::string& name, models::Request& request)
       {
-        show(out, name, request);
-      });
-      return reqMenu;
+        auto reqMenu = std::make_unique< cli::Menu >("req command");
+        reqMenu->Insert("show", [&name, &request](std::ostream& out)
+        {
+          show(out, name, request);
+        });
+        reqMenu->Insert("name", [&name](std::ostream& out, const std::string& new_name)
+        {
+          setName(out, name, new_name);
+        });
+        reqMenu->Insert("method", [&request](std::ostream& out, const std::string& new_method)
+        {
+          setMethod(out, request, new_method);
+        });
+        reqMenu->Insert("url", [&request](std::ostream& out, const std::string& new_url)
+        {
+          setURL(out, request, new_url);
+        });
+        reqMenu->Insert("headers", [&request](std::ostream& out, const std::string& new_headers)
+        {
+          setHeaders(out, request, new_headers);
+        });
+        reqMenu->Insert("body", [&request](std::ostream& out, const std::string& new_body)
+        {
+          setBody(out, request, new_body);
+        });
+        return reqMenu;
+      }
     }
   }
 }
