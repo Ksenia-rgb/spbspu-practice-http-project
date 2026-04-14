@@ -22,6 +22,8 @@ namespace http
 
       void setURL(std::ostream& out, models::Request& request, const std::string& url)
       {
+        request.host.clear();
+        request.path.clear();
         size_t i = url.find("://");
         if (i == std::string::npos)
         {
@@ -30,18 +32,22 @@ namespace http
         else {
           i += 3;
         }
-        for (; url[i] != '/'; ++i)
+        for (; url[i] != '/' && url[i] != '\0'; ++i)
         {
           request.host += url[i];
         }
-        for (; url[i] != 0; ++i)
+        for (; url[i] != '\0'; ++i)
         {
           request.path += url[i];
+        }
+        if (request.path.empty()) {
+          request.path = "/";
         }
       }
 
       void setHeaders(std::ostream& out, models::Request& request, const std::string& headers)
       {
+        request.headers.clear();
         for (size_t i = 0; i < headers.size(); ++i)
         {
           std::string header, value;
@@ -49,18 +55,24 @@ namespace http
           {
             header+=headers[i];
           }
-          ++i;
-          for (; headers[i] != ' ' &&  headers[i] != '\0'; ++i)
+          i += 2;
+          for (; headers[i] != '\'' &&  headers[i] != '"'; ++i)
           {
             value+=headers[i];
           }
+          ++i;
           request.headers[header] = value;
         }
       }
 
       void setBody(std::ostream& out, models::Request& request, const std::string& body)
       {
-        request.body = json::parse(body);
+        if (body.empty()) {
+          request.body = json::object();
+        } else
+        {
+          request.body = json::parse(body);
+        }
       }
 
       void startReqMenu(std::string& name, models::Request& request)
