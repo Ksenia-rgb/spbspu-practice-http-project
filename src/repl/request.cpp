@@ -1,5 +1,6 @@
 #include "request.hpp"
 #include <iostream>
+#include <fstream>
 #include "../../libs/json.hh"
 
 using json = nlohmann::json;
@@ -67,11 +68,18 @@ namespace http
 
       void setBody(std::ostream& out, models::Request& request, const std::string& body)
       {
-        if (body.empty()) {
-          request.body = json::object();
-        } else
+        if (body.find("{") == std::string::npos) {
+          std::ifstream f(body);
+          request.body = json::parse(f);
+        }
+        else
         {
-          request.body = json::parse(body);
+          if (body.empty()) {
+            request.body = json::object();
+          } else
+          {
+            request.body = json::parse(body);
+          }
         }
       }
 
