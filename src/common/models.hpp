@@ -2,6 +2,9 @@
 #define MODELS_HPP
 #include <string>
 #include <unordered_map>
+#include "../../libs/json.hh"
+
+using json = nlohmann::json;
 
 namespace http
 {
@@ -13,14 +16,14 @@ namespace http
       std::string host;
       std::string path;
       std::unordered_map< std::string, std::string > headers;
-      std::string body;
+      json body;
     };
 
     struct Response
     {
       std::string status_line;
       std::unordered_map< std::string, std::string > headers;
-      std::string body;
+      json body;
       std::string error;
     };
   }
