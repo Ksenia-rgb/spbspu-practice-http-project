@@ -3,7 +3,7 @@ CXX = g++
 SRC = $(wildcard src/*.cpp src/repl/*.cpp)
 EXEC = http
 
-COMMON_FLAGS = -Wall -Wextra -std=c++14
+COMMON_FLAGS = -Wall -Wextra -std=c++14 -I./libs -I./src/common
 DEBUG_FLAGS = -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Wformat=2 -Wnull-dereference -Wdouble-promotion -Wswitch-default -Wfloat-equal -Wcast-qual -Wcast-align -Weffc++ -Werror
 
 debug: out/debug/$(EXEC)
