@@ -1,7 +1,7 @@
 #include "request.hpp"
-#include <iostream>
 #include <fstream>
-#include "../../libs/json.hh"
+#include <iostream>
+#include <json.hh>
 
 using json = nlohmann::json;
 
@@ -59,7 +59,7 @@ namespace http
             header += headers[i];
           }
           i += 2;
-          for (; headers[i] != '\'' &&  headers[i] != '"'; ++i)
+          for (; headers[i] != '\'' && headers[i] != '"'; ++i)
           {
             value += headers[i];
           }
@@ -90,8 +90,7 @@ namespace http
         std::unique_ptr< cli::Menu > reqMenu = reqInit(name, request);
         cli::Cli req(std::move(reqMenu));
         cli::LoopScheduler scheduler;
-        req.ExitAction([&scheduler](std::ostream& out)
-        {
+        req.ExitAction([&scheduler](std::ostream& out) {
           scheduler.Stop();
         });
         cli::CliLocalTerminalSession session(req, scheduler, std::cout);
@@ -142,28 +141,22 @@ namespace http
       std::unique_ptr< cli::Menu > reqInit(std::string& name, models::Request& request)
       {
         auto reqMenu = std::make_unique< cli::Menu >("req command");
-        reqMenu->Insert("show", [&name, &request](std::ostream& out)
-        {
+        reqMenu->Insert("show", [&name, &request](std::ostream& out) {
           show(out, name, request);
         });
-        reqMenu->Insert("name", [&name](std::ostream& out, const std::string& new_name)
-        {
+        reqMenu->Insert("name", [&name](std::ostream& out, const std::string& new_name) {
           setName(out, name, new_name);
         });
-        reqMenu->Insert("method", [&request](std::ostream& out, const std::string& new_method)
-        {
+        reqMenu->Insert("method", [&request](std::ostream& out, const std::string& new_method) {
           setMethod(out, request, new_method);
         });
-        reqMenu->Insert("url", [&request](std::ostream& out, const std::string& new_url)
-        {
+        reqMenu->Insert("url", [&request](std::ostream& out, const std::string& new_url) {
           setURL(out, request, new_url);
         });
-        reqMenu->Insert("headers", [&request](std::ostream& out, const std::string& new_headers)
-        {
+        reqMenu->Insert("headers", [&request](std::ostream& out, const std::string& new_headers) {
           setHeaders(out, request, new_headers);
         });
-        reqMenu->Insert("body", [&request](std::ostream& out, const std::string& new_body)
-        {
+        reqMenu->Insert("body", [&request](std::ostream& out, const std::string& new_body) {
           setBody(out, request, new_body);
         });
         return reqMenu;

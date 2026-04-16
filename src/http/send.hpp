@@ -1,5 +1,5 @@
 #include <istream>
-#include "../common/models.hpp"
+#include <models.hpp>
 
 namespace http
 {

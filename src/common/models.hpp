@@ -1,8 +1,8 @@
 #ifndef MODELS_HPP
 #define MODELS_HPP
+#include <json.hh>
 #include <string>
 #include <unordered_map>
-#include "../../libs/json.hh"
 
 using json = nlohmann::json;
 

@@ -1,11 +1,11 @@
 #ifndef REQUEST_HPP
 #define REQUEST_HPP
-#include <ostream>
 #include <memory>
+#include <models.hpp>
+#include <ostream>
 #include <cli/cli.h>
 #include <cli/clilocalsession.h>
 #include <cli/loopscheduler.h>
-#include "../common/models.hpp"
 
 namespace http
 {
