@@ -21,8 +21,8 @@ namespace http
 
     struct Response
     {
-      std::string status_line;
-      std::unordered_map< std::string, std::string > headers;
+      int status;
+      std::unordered_multimap< std::string, std::string > headers;
       json body;
       std::string error;
     };
