@@ -7,8 +7,8 @@ namespace http
 {
   namespace send
   {
-    http::models::Response sendRequest(const http::models::Request&);
-    http::models::Response sendRequest(std::istream&);
+    models::Response sendRequest(const models::Request& req);
+    models::Response sendRequest(std::istream& in);
   }
 }
 
