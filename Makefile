@@ -1,6 +1,6 @@
 CXX = g++
 
-SRC = $(wildcard src/*.cpp src/repl/*.cpp)
+SRC = $(wildcard src/*.cpp src/repl/*.cpp src/http/*.cpp)
 EXEC = http
 
 COMMON_FLAGS = -Wall -Wextra -std=c++14 -I./libs -I./src/common

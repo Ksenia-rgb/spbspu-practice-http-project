@@ -1,3 +1,5 @@
+#ifndef SEND_HPP
+#define SEND_HPP
 #include <istream>
 #include <models.hpp>
 
@@ -6,6 +8,8 @@ namespace http
   namespace send
   {
     http::models::Response sendRequest(const http::models::Request&);
-    http::models::Response sendRequest(std::istream& in);
+    http::models::Response sendRequest(std::istream&);
   }
 }
+
+#endif
