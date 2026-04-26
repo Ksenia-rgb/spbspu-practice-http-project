@@ -1,8 +1,8 @@
 #include "request.hpp"
 #include <iostream>
 #include <fstream>
-#include <http/send.hpp>
 #include <json.hh>
+#include <send.hpp>
 
 using json = nlohmann::json;
 
@@ -14,10 +14,10 @@ namespace http
     {
       using setFunc = void (*)(models::Request&, const std::string&);
       void validInput(std::istream& in,
-                      std::ostream& out,
-                      const std::string& text,
-                      models::Request& request,
-                      setFunc setFunc)
+        std::ostream& out,
+        const std::string& text,
+        models::Request& request,
+        setFunc setFunc)
       {
         std::string input;
         while (true)
@@ -28,7 +28,8 @@ namespace http
             std::getline(in, input);
             setFunc(request, input);
             break;
-          } catch (const std::invalid_argument& e)
+          }
+          catch (const std::invalid_argument& e)
           {
             std::cout << "Error: " << e.what() << "\n";
           }
@@ -46,7 +47,7 @@ namespace http
         for (size_t i = 0; i < method.size(); ++i)
         {
           copy_method[i] =
-              static_cast< char >(std::toupper(static_cast< unsigned char >(method[i])));
+            static_cast< char >(std::toupper(static_cast< unsigned char >(method[i])));
         }
         if (copy_method == "GET" || copy_method == "POST")
         {
@@ -54,8 +55,8 @@ namespace http
         }
         else
         {
-          throw std::invalid_argument("invalid method: " + copy_method +
-                                      " choose between (POST, GET)");
+          throw std::invalid_argument(
+            "invalid method: " + copy_method + " choose between (POST, GET)");
         }
       }
 
@@ -180,11 +181,12 @@ namespace http
           try
           {
             request.body = json::parse(f);
-          } catch (const json::parse_error& e)
+          }
+          catch (const json::parse_error& e)
           {
             f.close();
-            throw std::invalid_argument("Invalid JSON in file: " + body +
-                                        "\nJson error: " + std::string(e.what()));
+            throw std::invalid_argument(
+              "Invalid JSON in file: " + body + "\nJson error: " + std::string(e.what()));
           }
           f.close();
         }
@@ -193,10 +195,11 @@ namespace http
           try
           {
             request.body = json::parse(body);
-          } catch (const json::parse_error& e)
+          }
+          catch (const json::parse_error& e)
           {
-            throw std::invalid_argument("Invalid JSON string\nJson error: " +
-                                        std::string(e.what()));
+            throw std::invalid_argument(
+              "Invalid JSON string\nJson error: " + std::string(e.what()));
           }
         }
       }
@@ -207,9 +210,11 @@ namespace http
         std::unique_ptr< cli::Menu > reqMenu = reqInit(name, request, response);
         cli::Cli req(std::move(reqMenu));
         cli::LoopScheduler scheduler;
-        req.ExitAction([&scheduler](std::ostream&) {
-          scheduler.Stop();
-        });
+        req.ExitAction(
+          [&scheduler](std::ostream&)
+          {
+            scheduler.Stop();
+          });
         cli::CliLocalTerminalSession session(req, scheduler, std::cout);
         scheduler.Run();
       }
@@ -242,34 +247,51 @@ namespace http
         out << "body: " << request.body << "\n";
       }
 
-      std::unique_ptr< cli::Menu >
-      reqInit(std::string& name, models::Request& request, models::Response& response)
+      std::unique_ptr< cli::Menu > reqInit(
+        std::string& name, models::Request& request, models::Response& response)
       {
         auto reqMenu = std::make_unique< cli::Menu >("req command");
-        reqMenu->Insert("show", [&name, &request](std::ostream& out) {
-          show(out, name, request);
-        });
-        reqMenu->Insert("name", [&name](std::ostream&, const std::string& new_name) {
-          setName(name, new_name);
-        });
-        reqMenu->Insert("method", [&request](std::ostream&, const std::string& new_method) {
-          setMethod(request, new_method);
-        });
-        reqMenu->Insert("url", [&request](std::ostream&, const std::string& new_url) {
-          setURL(request, new_url);
-        });
-        reqMenu->Insert("headers", [&request](std::ostream&, const std::string& new_headers) {
-          setHeaders(request, new_headers);
-        });
-        reqMenu->Insert("body", [&request](std::ostream&, const std::string& new_body) {
-          setBody(request, new_body);
-        });
-        reqMenu->Insert("execute", [&request, &response](std::ostream& out) {
-          response = send::sendRequest(request);
-        });
-        reqMenu->Insert("save", [&response](std::ostream& out) {
-          out << "Here will be save\n";
-        });
+        reqMenu->Insert("show",
+          [&name, &request](std::ostream& out)
+          {
+            show(out, name, request);
+          });
+        reqMenu->Insert("name",
+          [&name](std::ostream&, const std::string& new_name)
+          {
+            setName(name, new_name);
+          });
+        reqMenu->Insert("method",
+          [&request](std::ostream&, const std::string& new_method)
+          {
+            setMethod(request, new_method);
+          });
+        reqMenu->Insert("url",
+          [&request](std::ostream&, const std::string& new_url)
+          {
+            setURL(request, new_url);
+          });
+        reqMenu->Insert("headers",
+          [&request](std::ostream&, const std::string& new_headers)
+          {
+            setHeaders(request, new_headers);
+          });
+        reqMenu->Insert("body",
+          [&request](std::ostream&, const std::string& new_body)
+          {
+            setBody(request, new_body);
+          });
+        reqMenu->Insert("execute",
+          [&request, &response](std::ostream& out)
+          {
+            out << "Here will be exucute\n";
+            // response = send::sendRequest(request);
+          });
+        reqMenu->Insert("save",
+          [&response](std::ostream& out)
+          {
+            out << "Here will be save\n";
+          });
         return reqMenu;
       }
     }
