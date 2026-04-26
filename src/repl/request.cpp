@@ -29,7 +29,7 @@ namespace http
             break;
           } catch (const std::invalid_argument& e)
           {
-            std::cout << e.what();
+            std::cout << "Error: " << e.what() << "\n";
           }
         }
       }
@@ -54,14 +54,18 @@ namespace http
         else
         {
           throw std::invalid_argument("invalid method: " + copy_method +
-                                      " choose between (POST, GET)\n");
+                                      " choose between (POST, GET)");
         }
       }
 
       void setURL(models::Request& request, const std::string& url)
       {
-        request.host.clear();
-        request.path.clear();
+        if (url.empty())
+        {
+          throw std::invalid_argument("URL cannot be empty");
+        }
+        std::string host;
+        std::string path;
         size_t i = url.find("://");
         if (i == std::string::npos)
         {
@@ -73,36 +77,80 @@ namespace http
         }
         for (; url[i] != '/' && url[i] != '\0'; ++i)
         {
-          request.host += url[i];
+          host += url[i];
         }
         for (; url[i] != '\0'; ++i)
         {
-          request.path += url[i];
+          path += url[i];
         }
-        if (request.path.empty())
+        if (path.empty())
         {
-          request.path = "/";
+          path = "/";
         }
+        if (host.empty())
+        {
+          throw std::invalid_argument("host cannot be empty");
+        }
+        request.host = host;
+        request.path = path;
       }
 
       void setHeaders(models::Request& request, const std::string& headers)
       {
-        request.headers.clear();
+        if (headers.empty())
+        {
+          request.headers.clear();
+          return;
+        }
+        std::unordered_map< std::string, std::string > new_headers;
         for (size_t i = 0; i < headers.size(); ++i)
         {
           std::string header, value;
-          for (; headers[i] != '='; ++i)
+          while (i < headers.size() && headers[i] != '=' && headers[i] != ' ')
           {
             header += headers[i];
+            ++i;
           }
-          i += 2;
-          for (; headers[i] != '\'' && headers[i] != '"'; ++i)
+          if (header.empty())
           {
-            value += headers[i];
+            throw std::invalid_argument("Header name cannot be empty");
+          }
+          while (i < headers.size() && headers[i] != '=')
+          {
+            ++i;
+          }
+          if (i >= headers.size())
+          {
+            throw std::invalid_argument("Missing '=' after header: " + header);
           }
           ++i;
-          request.headers[header] = value;
+          while (i < headers.size() && headers[i] == ' ')
+          {
+            ++i;
+          }
+          if (i >= headers.size() || (headers[i] != '"' && headers[i] != '\''))
+          {
+            throw std::invalid_argument("Header value must be quoted: " + header);
+          }
+          char quote = headers[i];
+          ++i;
+          while (i < headers.size() && headers[i] != quote)
+          {
+            value += headers[i];
+            ++i;
+          }
+          if (i >= headers.size() || headers[i] != quote)
+          {
+            throw std::invalid_argument("Missing closing quote for header: " + header);
+          }
+          ++i;
+          if (value.empty())
+          {
+            throw std::invalid_argument("Header value cannot be empty: " + header);
+          }
+          new_headers[header] = value;
         }
+        request.headers = new_headers;
       }
 
       void setBody(models::Request& request, const std::string& body)
@@ -110,15 +158,45 @@ namespace http
         if (body.empty())
         {
           request.body = json::object();
+          return;
         }
-        else if (body.find("{") == std::string::npos)
+
+        if (body.find("{") == std::string::npos)
         {
           std::ifstream f(body);
-          request.body = json::parse(f);
+          if (!f.is_open())
+          {
+            throw std::invalid_argument("Cannot open file: " + body);
+          }
+
+          f.peek();
+          if (f.eof())
+          {
+            f.close();
+            throw std::invalid_argument("File is empty: " + body);
+          }
+
+          try
+          {
+            request.body = json::parse(f);
+          } catch (const json::parse_error& e)
+          {
+            f.close();
+            throw std::invalid_argument("Invalid JSON in file: " + body +
+                                        "\n  Json error: " + std::string(e.what()));
+          }
+          f.close();
         }
         else
         {
-          request.body = json::parse(body);
+          try
+          {
+            request.body = json::parse(body);
+          } catch (const json::parse_error& e)
+          {
+            throw std::invalid_argument("Invalid JSON string\n  Json error: " +
+                                        std::string(e.what()));
+          }
         }
       }
 
@@ -142,18 +220,9 @@ namespace http
         out << "req name> ";
         std::getline(in, name);
         validInput(in, out, "req method> ", request, setMethod);
-        std::string url;
-        out << "req URL> ";
-        std::getline(in, url);
-        setURL(request, url);
-        std::string headers;
-        out << "req headers> ";
-        std::getline(in, headers);
-        setHeaders(request, headers);
-        out << "req body> ";
-        std::string body;
-        std::getline(in, body);
-        setBody(request, body);
+        validInput(in, out, "req URL> ", request, setURL);
+        validInput(in, out, "req headers> ", request, setHeaders);
+        validInput(in, out, "req body> ", request, setBody);
         startReqMenu(name, request);
       }
 
