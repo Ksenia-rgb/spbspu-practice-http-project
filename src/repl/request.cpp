@@ -1,6 +1,6 @@
 #include "request.hpp"
-#include <fstream>
 #include <iostream>
+#include <fstream>
 #include <json.hh>
 
 using json = nlohmann::json;
@@ -11,17 +11,54 @@ namespace http
   {
     namespace req
     {
-      void setName(std::ostream& out, std::string& name, const std::string& new_name)
+      using setFunc = void (*)(models::Request&, const std::string&);
+      void validInput(std::istream& in,
+                      std::ostream& out,
+                      const std::string& text,
+                      models::Request& request,
+                      setFunc setFunc)
+      {
+        std::string input;
+        while (true)
+        {
+          try
+          {
+            out << text;
+            std::getline(in, input);
+            setFunc(request, input);
+            break;
+          } catch (const std::invalid_argument& e)
+          {
+            std::cout << e.what();
+          }
+        }
+      }
+
+      void setName(std::string& name, const std::string& new_name)
       {
         name = new_name;
       }
 
-      void setMethod(std::ostream& out, models::Request& request, const std::string& method)
+      void setMethod(models::Request& request, const std::string& method)
       {
-        request.method = method;
+        std::string copy_method = method;
+        for (size_t i = 0; i < method.size(); ++i)
+        {
+          copy_method[i] =
+              static_cast< char >(std::toupper(static_cast< unsigned char >(method[i])));
+        }
+        if (copy_method == "GET" || copy_method == "POST")
+        {
+          request.method = copy_method;
+        }
+        else
+        {
+          throw std::invalid_argument("invalid method: " + copy_method +
+                                      " choose between (POST, GET)\n");
+        }
       }
 
-      void setURL(std::ostream& out, models::Request& request, const std::string& url)
+      void setURL(models::Request& request, const std::string& url)
       {
         request.host.clear();
         request.path.clear();
@@ -48,7 +85,7 @@ namespace http
         }
       }
 
-      void setHeaders(std::ostream& out, models::Request& request, const std::string& headers)
+      void setHeaders(models::Request& request, const std::string& headers)
       {
         request.headers.clear();
         for (size_t i = 0; i < headers.size(); ++i)
@@ -68,7 +105,7 @@ namespace http
         }
       }
 
-      void setBody(std::ostream& out, models::Request& request, const std::string& body)
+      void setBody(models::Request& request, const std::string& body)
       {
         if (body.empty())
         {
@@ -90,7 +127,7 @@ namespace http
         std::unique_ptr< cli::Menu > reqMenu = reqInit(name, request);
         cli::Cli req(std::move(reqMenu));
         cli::LoopScheduler scheduler;
-        req.ExitAction([&scheduler](std::ostream& out) {
+        req.ExitAction([&scheduler](std::ostream&) {
           scheduler.Stop();
         });
         cli::CliLocalTerminalSession session(req, scheduler, std::cout);
@@ -104,23 +141,19 @@ namespace http
         std::string name;
         out << "req name> ";
         std::getline(in, name);
-        std::string method;
-        out << "req method> ";
-        std::getline(in, method);
-        setMethod(out, request, method);
+        validInput(in, out, "req method> ", request, setMethod);
         std::string url;
         out << "req URL> ";
         std::getline(in, url);
-        setURL(out, request, url);
+        setURL(request, url);
         std::string headers;
         out << "req headers> ";
         std::getline(in, headers);
-        setHeaders(out, request, headers);
+        setHeaders(request, headers);
         out << "req body> ";
         std::string body;
         std::getline(in, body);
-        setBody(out, request, body);
-
+        setBody(request, body);
         startReqMenu(name, request);
       }
 
@@ -144,20 +177,20 @@ namespace http
         reqMenu->Insert("show", [&name, &request](std::ostream& out) {
           show(out, name, request);
         });
-        reqMenu->Insert("name", [&name](std::ostream& out, const std::string& new_name) {
-          setName(out, name, new_name);
+        reqMenu->Insert("name", [&name](std::ostream&, const std::string& new_name) {
+          setName(name, new_name);
         });
-        reqMenu->Insert("method", [&request](std::ostream& out, const std::string& new_method) {
-          setMethod(out, request, new_method);
+        reqMenu->Insert("method", [&request](std::ostream&, const std::string& new_method) {
+          setMethod(request, new_method);
         });
-        reqMenu->Insert("url", [&request](std::ostream& out, const std::string& new_url) {
-          setURL(out, request, new_url);
+        reqMenu->Insert("url", [&request](std::ostream&, const std::string& new_url) {
+          setURL(request, new_url);
         });
-        reqMenu->Insert("headers", [&request](std::ostream& out, const std::string& new_headers) {
-          setHeaders(out, request, new_headers);
+        reqMenu->Insert("headers", [&request](std::ostream&, const std::string& new_headers) {
+          setHeaders(request, new_headers);
         });
-        reqMenu->Insert("body", [&request](std::ostream& out, const std::string& new_body) {
-          setBody(out, request, new_body);
+        reqMenu->Insert("body", [&request](std::ostream&, const std::string& new_body) {
+          setBody(request, new_body);
         });
         return reqMenu;
       }
