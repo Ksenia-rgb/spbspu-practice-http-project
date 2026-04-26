@@ -20,7 +20,8 @@ namespace http
       void setURL(models::Request& request, const std::string& url);
       void setHeaders(models::Request& request, const std::string& headers);
       void setBody(models::Request& request, const std::string& body);
-      std::unique_ptr< cli::Menu > reqInit(std::string& name, models::Request& request);
+      std::unique_ptr< cli::Menu >
+      reqInit(std::string& name, models::Request& request, models::Response& response);
     }
   }
 }

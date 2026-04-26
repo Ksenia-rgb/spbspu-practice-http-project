@@ -1,6 +1,7 @@
 #include "request.hpp"
 #include <iostream>
 #include <fstream>
+#include <http/send.hpp>
 #include <json.hh>
 
 using json = nlohmann::json;
@@ -183,7 +184,7 @@ namespace http
           {
             f.close();
             throw std::invalid_argument("Invalid JSON in file: " + body +
-                                        "\n  Json error: " + std::string(e.what()));
+                                        "\nJson error: " + std::string(e.what()));
           }
           f.close();
         }
@@ -194,7 +195,7 @@ namespace http
             request.body = json::parse(body);
           } catch (const json::parse_error& e)
           {
-            throw std::invalid_argument("Invalid JSON string\n  Json error: " +
+            throw std::invalid_argument("Invalid JSON string\nJson error: " +
                                         std::string(e.what()));
           }
         }
@@ -202,7 +203,8 @@ namespace http
 
       void startReqMenu(std::string& name, models::Request& request)
       {
-        std::unique_ptr< cli::Menu > reqMenu = reqInit(name, request);
+        models::Response response;
+        std::unique_ptr< cli::Menu > reqMenu = reqInit(name, request, response);
         cli::Cli req(std::move(reqMenu));
         cli::LoopScheduler scheduler;
         req.ExitAction([&scheduler](std::ostream&) {
@@ -240,7 +242,8 @@ namespace http
         out << "body: " << request.body << "\n";
       }
 
-      std::unique_ptr< cli::Menu > reqInit(std::string& name, models::Request& request)
+      std::unique_ptr< cli::Menu >
+      reqInit(std::string& name, models::Request& request, models::Response& response)
       {
         auto reqMenu = std::make_unique< cli::Menu >("req command");
         reqMenu->Insert("show", [&name, &request](std::ostream& out) {
@@ -260,6 +263,12 @@ namespace http
         });
         reqMenu->Insert("body", [&request](std::ostream&, const std::string& new_body) {
           setBody(request, new_body);
+        });
+        reqMenu->Insert("execute", [&request, &response](std::ostream& out) {
+          response = send::sendRequest(request);
+        });
+        reqMenu->Insert("save", [&response](std::ostream& out) {
+          out << "Here will be save\n";
         });
         return reqMenu;
       }
