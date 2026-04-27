@@ -1,14 +1,17 @@
 #include "repl.hpp"
 
-namespace http
+namespace http::repl
 {
-  namespace repl
+  std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, AppState& state)
   {
-    std::unique_ptr< cli::Menu > init()
-    {
-      auto rootMenu = std::make_unique< cli::Menu >("http-cli");
-      rootMenu->Insert("req", static_cast< std::function< void(std::ostream&) > >(req::req));
-      return rootMenu;
-    }
+    auto menu = std::make_unique< cli::Menu >("http-cli");
+    menu->Insert("req",
+      [&scheduler, &state](std::ostream&)
+      {
+        scheduler.Stop();
+        state.cli_state = CliState::REQ_INPUT;
+      });
+
+    return menu;
   }
 }

@@ -1,9 +1,6 @@
 #include <models.hpp>
 
-namespace http
+namespace http::response
 {
-  namespace response
-  {
-    void exportResponse(const models::Response& response);
-  }
+  void exportResponse(const models::Response& response);
 }
