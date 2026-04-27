@@ -6,26 +6,23 @@
 
 using json = nlohmann::json;
 
-namespace http
+namespace http::models
 {
-  namespace models
+  struct Request
   {
-    struct Request
-    {
-      std::string method;
-      std::string host;
-      std::string path;
-      std::unordered_map< std::string, std::string > headers;
-      json body;
-    };
+    std::string method;
+    std::string host;
+    std::string path;
+    std::unordered_map< std::string, std::string > headers;
+    json body;
+  };
 
-    struct Response
-    {
-      std::string status_line;
-      std::unordered_map< std::string, std::string > headers;
-      json body;
-      std::string error;
-    };
-  }
+  struct Response
+  {
+    std::string status_line;
+    std::unordered_map< std::string, std::string > headers;
+    json body;
+    std::string error;
+  };
 }
 #endif
