@@ -15,7 +15,7 @@ namespace http
       std::string method;
       std::string host;
       std::string path;
-      std::unordered_map< std::string, std::string > headers;
+      std::unordered_multimap< std::string, std::string > headers;
       json body;
     };
 
