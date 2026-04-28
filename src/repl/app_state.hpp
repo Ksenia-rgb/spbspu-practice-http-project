@@ -10,6 +10,7 @@ namespace http::repl
     REQ_INPUT,
     REQ_FILE,
     REQ_MENU,
+    FILE_EXEPTION,
     EXIT
   };
 

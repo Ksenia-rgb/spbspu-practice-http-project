@@ -11,6 +11,8 @@ namespace http::repl::req
 {
   void reqInput(std::string& name, models::Request& request, std::istream& in, std::ostream& out);
   void inputFromFile(models::Request& request, const std::string& path);
+  void createTemplateFile(const std::string& path);
+  void openTemplateFile(const std::string& path);
   void show(std::ostream& out, const std::string& name, const models::Request& request);
   void setName(std::string& name, const std::string& new_name);
   void setMethod(models::Request& request, const std::string& method);

@@ -192,7 +192,7 @@ namespace http::repl::req
       }
       catch (const json::parse_error& e)
       {
-        throw std::invalid_argument("Invalid JSON string\nJson error: " + std::string(e.what()));
+        throw std::invalid_argument("Invalid JSON string");
       }
     }
   }
@@ -207,17 +207,42 @@ namespace http::repl::req
     validInput(in, out, "req body> ", request, setBody);
   }
 
+  void createTemplateFile(const std::string& path)
+  {
+    std::string template_content =
+      "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: \nAccept: \nContent-Type: \nContent-Length: "
+      "\nCookie: \nAuthorization: \nConnection: \nSet-Cookie: \nLocation: \n\n<BODY>\n";
+    std::ofstream file(path);
+    if (!file.is_open())
+    {
+      throw std::runtime_error("Error: can not create a template file");
+    }
+    file << template_content;
+    file.close();
+  }
+
+  void openTemplateFile(const std::string& path)
+  {
+    std::string command = "nano " + path;
+    int result = system(command.c_str());
+
+    if (result != 0)
+    {
+      throw std::runtime_error("Error: can not open template file");
+    }
+  }
+
   void inputFromFile(models::Request& request, const std::string& path)
   {
     std::ifstream file(path);
     std::string input, method, req_path;
     if (!file.is_open())
     {
-      throw std::runtime_error("Ошибка: не удалось открыть файл!");
+      throw std::runtime_error("Error: can not open file");
     }
     if (!std::getline(file, input))
     {
-      throw std::runtime_error("Ошибка: файл пуст!");
+      throw std::runtime_error("Error: file is empty");
     }
     size_t i = 0;
     for (; input[i] != ' '; ++i)
