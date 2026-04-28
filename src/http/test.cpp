@@ -10,7 +10,6 @@ int main()
   req.method = "GET";
   http::models::Response resp = http::send::sendRequest(req);
   std::cout << "STATUS: " << resp.status << '\n';
-  std::cout << "ERROR: " << resp.error << '\n';
   std::cout << "HEADERS:\n";
   for (const auto& pair : resp.headers)
   {

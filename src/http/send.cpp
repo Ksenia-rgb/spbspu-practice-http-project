@@ -33,14 +33,10 @@ http::models::Response http::send::sendRequest(const http::models::Request& req)
     {
       response.headers.insert(pair);
     }
-    if (res->status != 200)
-    {
-      response.error = "HTTP error";
-    }
   }
   else if (!res)
   {
-    response.error = httplib::to_string(res.error());
+    throw std::logic_error(httplib::to_string(res.error()));
   }
   return response;
 }
