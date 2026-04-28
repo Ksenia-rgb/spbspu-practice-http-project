@@ -5,8 +5,16 @@ int main()
 {
   httplib::Server svr;
 
-  svr.Get("/hi", [](const auto&, auto& res) {
-    res.set_content("Hello!", "text/plain");
+  svr.Get("/hi", [](const auto& req, auto& res) {
+    if (req.has_header("User-Agent"))
+    {
+      auto user_agent = req.get_header_value("User-Agent");
+      res.set_content("Hello, " + user_agent, "text/plain");
+    }
+    else
+    {
+      res.set_content("Hello!", "text/plain");
+    }
   });
 
   svr.Get("/search", [](const auto& req, auto& res) {

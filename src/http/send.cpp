@@ -9,15 +9,15 @@ http::models::Response http::send::sendRequest(const http::models::Request& req)
   httplib::Result res;
   if (req.method == "GET")
   {
-    res = cli.Get(req.path);
+    res = cli.Get(req.path, httplib::Headers(req.headers.begin(), req.headers.end()));
   }
   else if (req.method == "POST")
   {
-    res = cli.Post(req.path);
+    res = cli.Post(req.path, httplib::Headers(req.headers.begin(), req.headers.end()));
   }
   else if (req.method == "HEAD")
   {
-    res = cli.Head(req.path);
+    res = cli.Head(req.path, httplib::Headers(req.headers.begin(), req.headers.end()));
   }
   else
   {

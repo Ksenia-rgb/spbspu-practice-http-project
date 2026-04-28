@@ -6,8 +6,10 @@ int main()
 {
   http::models::Request req;
   req.host = "http://localhost:8080";
-  req.path = "/hello";
+  req.path = "/hi";
   req.method = "GET";
+  req.headers = {{"User-Agent", "HTTP-Client"}};
+  req.body = {{"echo", "Not Hello >:("}};
   http::models::Response resp = http::send::sendRequest(req);
   std::cout << "STATUS: " << resp.status << '\n';
   std::cout << "HEADERS:\n";
