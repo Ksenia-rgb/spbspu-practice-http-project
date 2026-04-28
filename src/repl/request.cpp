@@ -207,6 +207,52 @@ namespace http::repl::req
     validInput(in, out, "req body> ", request, setBody);
   }
 
+  void inputFromFile(models::Request& request, const std::string& path)
+  {
+    std::ifstream file(path);
+    std::string input, method, req_path;
+    if (!file.is_open())
+    {
+      throw std::runtime_error("Ошибка: не удалось открыть файл!");
+    }
+    if (!std::getline(file, input))
+    {
+      throw std::runtime_error("Ошибка: файл пуст!");
+    }
+    size_t i = 0;
+    for (; input[i] != ' '; ++i)
+    {
+      method += input[i];
+    }
+    ++i;
+    for (; input[i] != ' '; ++i)
+    {
+      req_path += input[i];
+    }
+    setMethod(request, method);
+    while (std::getline(file, input) && !input.empty())
+    {
+      std::string header, value;
+      size_t i = 0;
+      for (; input[i] != ':'; ++i)
+      {
+        header += input[i];
+      }
+      i += 2;
+      for (; i < input.size(); ++i)
+      {
+        value += input[i];
+      }
+      if (header == "Host")
+      {
+        setURL(request, value + req_path);
+      }
+      request.headers[header] = value;
+    }
+    std::getline(file, input);
+    setBody(request, input);
+  }
+
   void show(std::ostream& out, const std::string& name, const models::Request& request)
   {
     out << "name: " << name << "\n";
