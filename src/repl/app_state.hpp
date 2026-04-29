@@ -8,7 +8,9 @@ namespace http::repl
   {
     NORMAL,
     REQ_INPUT,
+    REQ_FILE,
     REQ_MENU,
+    FILE_EXEPTION,
     EXIT
   };
 

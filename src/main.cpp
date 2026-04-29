@@ -51,5 +51,15 @@ int main()
     {
       break;
     }
+    else if (state.cli_state == http::repl::CliState::REQ_FILE)
+    {
+      std::cout << "\n";
+      state.cli_state = http::repl::CliState::REQ_MENU;
+    }
+    else if (state.cli_state == http::repl::CliState::FILE_EXEPTION)
+    {
+      std::cout << "\n";
+      state.cli_state = http::repl::CliState::NORMAL;
+    }
   }
 }
