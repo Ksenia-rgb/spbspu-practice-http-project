@@ -6,6 +6,8 @@
 http::models::Response http::send::sendRequest(const http::models::Request& req)
 {
   httplib::Client cli(req.host);
+  cli.set_default_headers({{"Accept", "application/json"}, {"User-Agent", "HTTP-Client"}});
+
   httplib::Result res;
   if (req.method == "GET")
   {
@@ -13,7 +15,8 @@ http::models::Response http::send::sendRequest(const http::models::Request& req)
   }
   else if (req.method == "POST")
   {
-    res = cli.Post(req.path, httplib::Headers(req.headers.begin(), req.headers.end()));
+    res = cli.Post(
+        req.path, httplib::Headers(req.headers.begin(), req.headers.end()), req.body.dump(), "application/json");
   }
   else if (req.method == "HEAD")
   {
@@ -34,7 +37,7 @@ http::models::Response http::send::sendRequest(const http::models::Request& req)
       response.headers.insert(pair);
     }
   }
-  else if (!res)
+  else
   {
     throw std::logic_error(httplib::to_string(res.error()));
   }
