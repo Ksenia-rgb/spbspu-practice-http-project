@@ -9,6 +9,7 @@
 
 namespace http::repl::req
 {
+  using json = nlohmann::json;
   void reqInput(std::string& name, models::Request& request, std::istream& in, std::ostream& out);
   void inputFromFile(models::Request& request, const std::string& path);
   void createTemplateFile(const std::string& path);
