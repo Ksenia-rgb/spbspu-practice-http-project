@@ -338,7 +338,7 @@ std::unique_ptr< cli::Menu > http::repl::req::reqInit(
   reqMenu->Insert("execute",
     [&request, &response](std::ostream& out)
     {
-      response.body = json::parse("{\"status\":\"successful\"}");
+      response.body = "{\"status\":\"successful\"}";
       response.status = 200;
       response.headers.insert({"Content-Type", "application/json; charset=utf-8"});
       json json_response = response::convertResponseToJson(response);

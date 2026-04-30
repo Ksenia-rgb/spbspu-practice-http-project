@@ -23,7 +23,7 @@ namespace http
     {
       long status = -1;
       std::unordered_multimap< std::string, std::string > headers;
-      json body;
+      std::string body;
     };
   }
 }

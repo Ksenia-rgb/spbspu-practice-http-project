@@ -12,7 +12,18 @@ json http::response::convertResponseToJson(const models::Response& response)
   {
     json_response["headers"].push_back(header.first + ": " + header.second);
   }
-  json_response["body"] = response.body;
+  json body;
+  try
+  {
+    body = json::parse(response.body);
+  }
+  catch (const json::parse_error& e)
+  {
+    json_response["body"] = response.body;
+    return json_response;
+  }
+
+  json_response["body"] = body;
   return json_response;
 }
 
