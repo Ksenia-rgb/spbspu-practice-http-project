@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <json.hh>
+#include <response.hpp>
 #include <send.hpp>
 
 namespace
@@ -97,7 +98,7 @@ void http::repl::req::setHeaders(models::Request& request, const std::string& he
     request.headers.clear();
     return;
   }
-  std::unordered_map< std::string, std::string > new_headers;
+  std::unordered_multimap< std::string, std::string > new_headers;
   for (size_t i = 0; i < headers.size(); ++i)
   {
     std::string header, value;
@@ -143,9 +144,9 @@ void http::repl::req::setHeaders(models::Request& request, const std::string& he
     {
       throw std::invalid_argument("Header value cannot be empty: " + header);
     }
-    new_headers[header] = value;
+    new_headers.insert({header, value});
   }
-  request.headers = new_headers;
+  request.headers = std::move(new_headers);
 }
 
 void http::repl::req::setBody(models::Request& request, const std::string& body)
@@ -279,7 +280,7 @@ void http::repl::req::inputFromFile(models::Request& request, const std::string&
     {
       setURL(request, value + req_path);
     }
-    request.headers[header] = value;
+    request.headers.insert({header, value});
   }
   std::getline(file, input);
   setBody(request, input);
@@ -337,13 +338,16 @@ std::unique_ptr< cli::Menu > http::repl::req::reqInit(
   reqMenu->Insert("execute",
     [&request, &response](std::ostream& out)
     {
-      out << "Here will be exucute\n";
-      // response = send::sendRequest(request);
+      response.body = json::parse("{\"status\":\"successful\"}");
+      response.status = 200;
+      response.headers.insert({"Content-Type", "application/json; charset=utf-8"});
+      json json_response = response::convertResponseToJson(response);
+      out << std::setw(2) << json_response << "\n";
     });
   reqMenu->Insert("save",
-    [&response](std::ostream& out)
+    [&response](std::ostream&, const std::string& path)
     {
-      out << "Here will be save\n";
+      response::saveResponse(response, path);
     });
   return reqMenu;
 }

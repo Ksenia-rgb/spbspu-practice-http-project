@@ -11,7 +11,8 @@ namespace http
 {
   namespace repl
   {
-    std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, AppState& state);
+    bool exitConfirmation(std::istream& in, std::ostream& out);
+    std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, state::AppState& state);
   }
 }
 #endif
