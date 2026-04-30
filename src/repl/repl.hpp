@@ -7,9 +7,11 @@
 #include "app_state.hpp"
 #include "request.hpp"
 
-namespace http::repl
+namespace http
 {
-  std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, AppState& state);
+  namespace repl
+  {
+    std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, AppState& state);
+  }
 }
-
 #endif
