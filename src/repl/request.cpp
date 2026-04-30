@@ -43,7 +43,7 @@ void http::repl::req::setMethod(models::Request& request, const std::string& met
   {
     copy_method[i] = static_cast< char >(std::toupper(static_cast< unsigned char >(method[i])));
   }
-  if (copy_method == "GET" || copy_method == "POST")
+  if (copy_method == "GET" || copy_method == "POST" || copy_method == "HEAD")
   {
     request.method = copy_method;
   }
@@ -204,7 +204,14 @@ void http::repl::req::reqInput(
   validInput(in, out, "req method> ", request, setMethod);
   validInput(in, out, "req URL> ", request, setURL);
   validInput(in, out, "req headers> ", request, setHeaders);
-  validInput(in, out, "req body> ", request, setBody);
+  if (request.method == "POST")
+  {
+    validInput(in, out, "req body> ", request, setBody);
+  }
+  else
+  {
+    setBody(request, "{}");
+  }
 }
 
 void http::repl::req::createTemplateFile(const std::string& path)
