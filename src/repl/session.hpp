@@ -1,3 +1,5 @@
+#ifndef SESSION_HPP
+#define SESSION_HPP
 #include <json.hh>
 #include <models.hpp>
 #include <string>
@@ -43,3 +45,5 @@ namespace http
     std::vector< std::string > sessionList();
   }
 }
+
+#endif
