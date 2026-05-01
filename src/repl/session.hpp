@@ -14,17 +14,14 @@ namespace http
     class Session
     {
     public:
-      Session();
+      Session() = default;
       Session(const Session&) = delete;
-      Session(Session&& rhs);
       Session(const Session& rhs, const std::string& name);
       explicit Session(std::string name);
-      ~Session();
       Session operator=(const Session&) = delete;
-      Session operator=(Session&& rhs);
 
       std::string getName() const noexcept;
-      void setName();
+      void setName(const std::string& name);
       void removeSession();
       void switchSession(const std::string& name);
       const json& getHistory(const std::string& name, size_t limit = 10) const noexcept;
@@ -39,7 +36,9 @@ namespace http
 
     private:
       std::string name_ = "Unknown";
-      json history;
+      json history_;
+
+      void read();
     };
 
     std::vector< std::string > sessionList();
