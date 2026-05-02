@@ -3,7 +3,7 @@ CXX = g++
 SRC = $(wildcard src/*.cpp src/repl/*.cpp src/http/*.cpp)
 EXEC = http
 
-COMMON_FLAGS = -Wall -Wextra -std=c++14 -I./libs -I./src/common -I./src/http
+COMMON_FLAGS = -Wall -Wextra -std=c++14 -isystem libs -I./src/common -I./src/http
 DEBUG_FLAGS = -Weffc++ -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Wformat=2 -Wnull-dereference -Wdouble-promotion -Wswitch-default -Wfloat-equal -Wcast-qual -Wcast-align -Wlogical-op -fsanitize=address,undefined -g -O0 
 
 debug: out/debug/$(EXEC)
