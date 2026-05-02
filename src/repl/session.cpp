@@ -1,11 +1,13 @@
 #include "session.hpp"
+#include <fstream>
+#include <iostream>
 #include <stdexcept>
-#include <boost/filesystem.hpp>
+#include <string>
 #include <boost/filesystem/operations.hpp>
 
 namespace
 {
-  const std::string DATA_PATH = "data";
+  const std::string DATA_PATH = "data/";
 }
 
 http::session::Session::Session(const Session& rhs, const std::string& name)
@@ -59,4 +61,34 @@ void http::session::Session::switchSession(const std::string& name)
   }
   name_ = name;
   read();
+}
+
+void http::session::Session::save()
+{
+  std::ofstream out(DATA_PATH + name_ + ".json");
+  out << history_;
+}
+
+void http::session::Session::read()
+{
+  std::ifstream in(DATA_PATH + name_ + ".json");
+  history_.clear();
+  if (in.is_open())
+  {
+    in >> history_;
+  }
+}
+
+json http::session::Session::getHistory(size_t limit) const
+{
+  json res;
+  if (limit >= history_.size())
+  {
+    limit = history_.size();
+  }
+  for (size_t i = history_.size() - limit; i != history_.size(); ++i)
+  {
+    res.push_back(history_[i]);
+  }
+  return res;
 }
