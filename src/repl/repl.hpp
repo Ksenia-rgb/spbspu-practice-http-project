@@ -7,9 +7,12 @@
 #include "app_state.hpp"
 #include "request.hpp"
 
-namespace http::repl
+namespace http
 {
-  std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, AppState& state);
+  namespace repl
+  {
+    bool exitConfirmation(std::istream& in, std::ostream& out);
+    std::unique_ptr< cli::Menu > init(cli::LoopScheduler& scheduler, state::AppState& state);
+  }
 }
-
 #endif

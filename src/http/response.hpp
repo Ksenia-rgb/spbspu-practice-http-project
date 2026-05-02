@@ -1,6 +1,18 @@
-#include <models.hpp>
+#ifndef RESPONSE_HPP
+#define RESPONSE_HPP
 
-namespace http::response
+#include <models.hpp>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+namespace http
 {
-  void exportResponse(const models::Response& response);
+  namespace response
+  {
+    json convertResponseToJson(const models::Response& response);
+    void saveResponse(const models::Response& response, const std::string& path);
+  }
 }
+
+#endif
