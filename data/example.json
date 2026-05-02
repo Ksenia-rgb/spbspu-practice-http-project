@@ -1,0 +1,22 @@
+[
+  {
+    "name": "",
+    "mark": "",
+    "comment": "",
+    "request ": {
+      "method": "GET",
+      "host": "ex.ru",
+      "path": "/api",
+      "headers": [
+        "header: value",
+        "header: value"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [],
+      "body": {}
+    }
+  }
+]
