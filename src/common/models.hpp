@@ -21,7 +21,7 @@ namespace http
 
     struct Response
     {
-      long status = -1;
+      int status;
       std::unordered_multimap< std::string, std::string > headers;
       std::string body;
     };
