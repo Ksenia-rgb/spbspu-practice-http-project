@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <json.hh>
+#include <response.hpp>
 #include <send.hpp>
 
 namespace
@@ -43,7 +44,7 @@ void http::repl::req::setMethod(models::Request& request, const std::string& met
   {
     copy_method[i] = static_cast< char >(std::toupper(static_cast< unsigned char >(method[i])));
   }
-  if (copy_method == "GET" || copy_method == "POST")
+  if (copy_method == "GET" || copy_method == "POST" || copy_method == "HEAD")
   {
     request.method = copy_method;
   }
@@ -97,7 +98,7 @@ void http::repl::req::setHeaders(models::Request& request, const std::string& he
     request.headers.clear();
     return;
   }
-  std::unordered_map< std::string, std::string > new_headers;
+  std::unordered_multimap< std::string, std::string > new_headers;
   for (size_t i = 0; i < headers.size(); ++i)
   {
     std::string header, value;
@@ -143,9 +144,9 @@ void http::repl::req::setHeaders(models::Request& request, const std::string& he
     {
       throw std::invalid_argument("Header value cannot be empty: " + header);
     }
-    new_headers[header] = value;
+    new_headers.insert({header, value});
   }
-  request.headers = new_headers;
+  request.headers = std::move(new_headers);
 }
 
 void http::repl::req::setBody(models::Request& request, const std::string& body)
@@ -204,14 +205,21 @@ void http::repl::req::reqInput(
   validInput(in, out, "req method> ", request, setMethod);
   validInput(in, out, "req URL> ", request, setURL);
   validInput(in, out, "req headers> ", request, setHeaders);
-  validInput(in, out, "req body> ", request, setBody);
+  if (request.method == "POST")
+  {
+    validInput(in, out, "req body> ", request, setBody);
+  }
+  else
+  {
+    setBody(request, "{}");
+  }
 }
 
 void http::repl::req::createTemplateFile(const std::string& path)
 {
   std::string template_content =
-    "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: \nAccept: \nContent-Type: \nContent-Length: "
-    "\nCookie: \nAuthorization: \nConnection: \nSet-Cookie: \nLocation: \n\n<BODY>\n";
+    "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: HTTP-Client\nAccept: "
+    "application/json\nContent-Type: application/json\nContent-Length: \n\n<BODY>";
   std::ofstream file(path);
   if (!file.is_open())
   {
@@ -272,7 +280,7 @@ void http::repl::req::inputFromFile(models::Request& request, const std::string&
     {
       setURL(request, value + req_path);
     }
-    request.headers[header] = value;
+    request.headers.insert({header, value});
   }
   std::getline(file, input);
   setBody(request, input);
@@ -330,13 +338,16 @@ std::unique_ptr< cli::Menu > http::repl::req::reqInit(
   reqMenu->Insert("execute",
     [&request, &response](std::ostream& out)
     {
-      out << "Here will be exucute\n";
-      // response = send::sendRequest(request);
+      response.body = "{\"status\":\"successful\"}";
+      response.status = 200;
+      response.headers.insert({"Content-Type", "application/json; charset=utf-8"});
+      json json_response = response::convertResponseToJson(response);
+      out << std::setw(2) << json_response << "\n";
     });
   reqMenu->Insert("save",
-    [&response](std::ostream& out)
+    [&response](std::ostream&, const std::string& path)
     {
-      out << "Here will be save\n";
+      response::saveResponse(response, path);
     });
   return reqMenu;
 }
