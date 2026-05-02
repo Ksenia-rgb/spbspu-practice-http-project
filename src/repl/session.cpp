@@ -1,6 +1,5 @@
 #include "session.hpp"
 #include <fstream>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <boost/filesystem/operations.hpp>
