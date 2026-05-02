@@ -30,7 +30,56 @@ std::unique_ptr< cli::Menu > http::repl::init(cli::LoopScheduler& scheduler, sta
       scheduler.Stop();
       state.cli_state = state::CliState::REQ_FILE;
     });
-
+  menu->Insert("session",
+    [](std::ostream& out)
+    {
+      out << "Unknown\n";
+    });
+  menu->Insert("session-list",
+    [](std::ostream& out)
+    {
+      out << "Unknown\nBanking\nShop\n";
+    });
+  menu->Insert("session-list",
+    [](std::ostream&, const std::string& name)
+    {
+      // renameSession(name)
+    });
+  menu->Insert("session-rm",
+    [](std::ostream&, const std::string& name)
+    {
+      // rmSession(name)
+    });
+  menu->Insert("session-switch",
+    [](std::ostream& out, const std::string& name)
+    {
+      // switchSession(name)
+      out << "switch to " << name << "\n";
+    });
+  menu->Insert("history",
+    [](std::ostream& out, int limit)
+    {
+      // getHistory(limit)
+      out << "here will be history\n";
+    });
+  menu->Insert("history",
+    [](std::ostream& out, const std::string& name)
+    {
+      // getHistory(name)
+      out << "here will be history\n";
+    });
+  menu->Insert("mark",
+    [](std::ostream& out, const std::string& req_name, const std::string& mark)
+    {
+      // mark(req_name, mark)
+      out << "here will be mark\n";
+    });
+  menu->Insert("mark",
+    [](std::ostream& out, const std::string& req_name, const std::string& comment)
+    {
+      // comment(req_name, comment)
+      out << "here will be mark\n";
+    });
   return menu;
 }
 
