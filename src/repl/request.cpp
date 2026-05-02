@@ -218,8 +218,8 @@ void http::repl::req::reqInput(
 void http::repl::req::createTemplateFile(const std::string& path)
 {
   std::string template_content =
-    "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: \nAccept: \nContent-Type: \nContent-Length: "
-    "\nCookie: \nAuthorization: \nConnection: \nSet-Cookie: \nLocation: \n\n<BODY>\n";
+    "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: HTTP-Client\nAccept: "
+    "application/json\nContent-Type: application/json\nContent-Length: \n\n<BODY>";
   std::ofstream file(path);
   if (!file.is_open())
   {
