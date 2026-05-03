@@ -1,7 +1,7 @@
 #ifndef MODELS_HPP
 #define MODELS_HPP
-#include <json.hh>
 #include <string>
+#include <json.hh>
 #include <unordered_map>
 
 using ordered_json = nlohmann::ordered_json;
@@ -21,7 +21,7 @@ namespace http
 
     struct Response
     {
-      int status;
+      int status = -1;
       std::unordered_multimap< std::string, std::string > headers;
       std::string body;
     };
