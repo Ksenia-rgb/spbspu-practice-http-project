@@ -17,7 +17,7 @@ namespace http
       Session() = default;
       Session(const Session&) = delete;
       Session(const Session& rhs, const std::string& name);
-      explicit Session(std::string name);
+      explicit Session(const std::string& name);
       Session operator=(const Session&) = delete;
 
       std::string getName() const noexcept;

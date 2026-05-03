@@ -12,18 +12,18 @@ namespace
   const std::string DATA_PATH = "data/";
 }
 
-http::session::Session::Session(const Session& rhs, const std::string& name)
+http::session::Session::Session(const Session& rhs, const std::string& name):
+  name_(name),
+  history_(rhs.history_)
 {
   if (name == "Unknown")
   {
     throw std::logic_error("The name can't be Unknown");
   }
-  name_ = name;
-  history_ = rhs.history_;
   save();
 }
 
-http::session::Session::Session(std::string name)
+http::session::Session::Session(const std::string& name)
 {
   if (name == "Unknown")
   {
