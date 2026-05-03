@@ -4,6 +4,7 @@
 #include <json.hh>
 #include <response.hpp>
 #include <send.hpp>
+#include "help.hpp"
 
 namespace
 {
@@ -305,47 +306,70 @@ std::unique_ptr< cli::Menu > http::repl::req::reqInit(
   std::string& name, models::Request& request, models::Response& response)
 {
   auto reqMenu = std::make_unique< cli::Menu >("req command");
-  reqMenu->Insert("show",
+  reqMenu->Insert(
+    "show",
     [&name, &request](std::ostream& out)
     {
       show(out, name, request);
-    });
-  reqMenu->Insert("name",
+    },
+    "Show request data");
+  reqMenu->Insert(
+    "name",
     [&name](std::ostream&, const std::string& new_name)
     {
       setName(name, new_name);
-    });
-  reqMenu->Insert("method",
+    },
+    "Edit name");
+  reqMenu->Insert(
+    "method",
     [&request](std::ostream&, const std::string& new_method)
     {
       setMethod(request, new_method);
-    });
-  reqMenu->Insert("url",
+    },
+    "Edit method");
+  reqMenu->Insert(
+    "url",
     [&request](std::ostream&, const std::string& new_url)
     {
       setURL(request, new_url);
-    });
-  reqMenu->Insert("headers",
+    },
+    "Edit url");
+  reqMenu->Insert(
+    "headers",
     [&request](std::ostream&, const std::string& new_headers)
     {
       setHeaders(request, new_headers);
-    });
-  reqMenu->Insert("body",
+    },
+    "Edit headers");
+  reqMenu->Insert(
+    "body",
     [&request](std::ostream&, const std::string& new_body)
     {
       setBody(request, new_body);
-    });
-  reqMenu->Insert("execute",
+    },
+    "Edit body");
+  reqMenu->Insert(
+    "execute",
     [&request, &response](std::ostream& out)
     {
       response = send::sendRequest(request);
       json json_response = response::convertResponseToJson(response);
       out << std::setw(2) << json_response << "\n";
-    });
-  reqMenu->Insert("save",
+    },
+    "Send the HTTP request and display response (JSON format)");
+  reqMenu->Insert(
+    "save",
     [&response](std::ostream&, const std::string& path)
     {
       response::saveResponse(response, path);
-    });
+    },
+    "Save response to file (warning if request not yet executed)");
+  reqMenu->Insert(
+    "helpDetails",
+    [](std::ostream& out)
+    {
+      out << help::REQ_HELP_TEXT;
+    },
+    "Show full help");
   return reqMenu;
 }
