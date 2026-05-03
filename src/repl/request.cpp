@@ -1,10 +1,10 @@
 #include "request.hpp"
 #include <iostream>
 #include <fstream>
+#include <help.hpp>
 #include <json.hh>
 #include <response.hpp>
 #include <send.hpp>
-#include "help.hpp"
 
 namespace
 {
@@ -27,7 +27,7 @@ namespace
       }
       catch (const std::invalid_argument& e)
       {
-        std::cout << "Error: " << e.what() << "\n";
+        out << "Error: " << e.what() << "\n";
       }
     }
   }
