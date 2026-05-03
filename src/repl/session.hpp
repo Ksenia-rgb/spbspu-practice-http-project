@@ -16,8 +16,8 @@ namespace http
     public:
       Session() = default;
       Session(const Session&) = delete;
-      Session(const Session& rhs, const std::string& name);
-      explicit Session(const std::string& name);
+      Session(const Session& rhs, const std::string& name, const std::string& path = "data/");
+      explicit Session(const std::string& name, const std::string& path = "data/");
       Session operator=(const Session&) = delete;
 
       std::string getName() const noexcept;
@@ -41,12 +41,14 @@ namespace http
     private:
       std::string name_ = "Unknown";
       ordered_json history_;
+      const std::string dataPath_ = "data/";
 
       void read();
       ordered_json createRequest(const std::string& name, const std::string& mark, const std::string& comment,
           const http::models::Request& request, const http::models::Response& response);
     };
 
+    std::vector< std::string > sessionList(const std::string& path);
     std::vector< std::string > sessionList();
   }
 }
