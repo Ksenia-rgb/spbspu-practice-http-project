@@ -233,7 +233,14 @@ ordered_json http::session::Session::createRequest(const std::string& name, cons
   {
     res["headers"].push_back(pair.first + ": " + pair.second);
   }
-  res["body"] = response.body;
+  try
+  {
+    res["body"] = ordered_json::parse(response.body);
+  }
+  catch (const ordered_json::parse_error& e)
+  {
+    res["body"] = response.body;
+  }
   j["response"] = res;
 
   return j;
@@ -252,7 +259,7 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
       for (const std::string h : history_[i]["request"]["headers"])
       {
         size_t pos = h.find(": ");
-        req.headers.insert({h.substr(0, pos), h.substr(pos + 1)});
+        req.headers.insert({h.substr(0, pos), h.substr(pos + 2)});
       }
       req.body = history_[i]["request"]["body"];
 
@@ -261,9 +268,9 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
       for (const std::string h : history_[i]["response"]["headers"])
       {
         size_t pos = h.find(": ");
-        res.headers.insert({h.substr(0, pos), h.substr(pos + 1)});
+        res.headers.insert({h.substr(0, pos), h.substr(pos + 2)});
       }
-      res.body = history_[i]["response"]["body"];
+      res.body = history_[i]["response"]["body"].dump();
 
       return {req, res};
     }
