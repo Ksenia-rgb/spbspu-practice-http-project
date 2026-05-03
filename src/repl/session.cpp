@@ -7,14 +7,10 @@
 #include "json.hh"
 #include "models.hpp"
 
-namespace
-{
-  const std::string DATA_PATH = "data/";
-}
-
-http::session::Session::Session(const Session& rhs, const std::string& name):
+http::session::Session::Session(const Session& rhs, const std::string& name, const std::string& path):
   name_(name),
-  history_(rhs.history_)
+  history_(rhs.history_),
+  dataPath_(path)
 {
   if (name == "Unknown")
   {
@@ -23,13 +19,14 @@ http::session::Session::Session(const Session& rhs, const std::string& name):
   save();
 }
 
-http::session::Session::Session(const std::string& name)
+http::session::Session::Session(const std::string& name, const std::string& path):
+  name_(name),
+  dataPath_(path)
 {
   if (name == "Unknown")
   {
     throw std::logic_error("The name can't be Unknown");
   }
-  name_ = name;
   read();
   save();
 }
@@ -47,11 +44,11 @@ void http::session::Session::setName(const std::string& name)
   }
   try
   {
-    boost::filesystem::rename(DATA_PATH + name_ + ".json", DATA_PATH + name + ".json");
+    boost::filesystem::rename(dataPath_ + name_ + ".json", dataPath_ + name + ".json");
   }
-  catch (boost::filesystem::filesystem_error)
+  catch (const boost::filesystem::filesystem_error&)
   {
-    std::ofstream out(DATA_PATH + name + ".json");
+    std::ofstream out(dataPath_ + name + ".json");
     out << history_.dump(2);
   }
   name_ = name;
@@ -59,7 +56,7 @@ void http::session::Session::setName(const std::string& name)
 
 void http::session::Session::removeSession()
 {
-  boost::filesystem::remove(DATA_PATH + name_ + ".json");
+  boost::filesystem::remove(dataPath_ + name_ + ".json");
   name_ = "Unknown";
   history_.clear();
 }
@@ -78,7 +75,7 @@ void http::session::Session::save()
 {
   if (name_ != "Unknown")
   {
-    std::ofstream out(DATA_PATH + name_ + ".json");
+    std::ofstream out(dataPath_ + name_ + ".json");
     out << history_.dump(2);
   }
 }
@@ -88,7 +85,7 @@ void http::session::Session::read()
   history_.clear();
   if (name_ != "Unknown")
   {
-    std::ifstream in(DATA_PATH + name_ + ".json");
+    std::ifstream in(dataPath_ + name_ + ".json");
     if (in.is_open())
     {
       in >> history_;
@@ -233,7 +230,14 @@ ordered_json http::session::Session::createRequest(const std::string& name, cons
   {
     res["headers"].push_back(pair.first + ": " + pair.second);
   }
-  res["body"] = response.body;
+  try
+  {
+    res["body"] = ordered_json::parse(response.body);
+  }
+  catch (const ordered_json::parse_error& e)
+  {
+    res["body"] = response.body;
+  }
   j["response"] = res;
 
   return j;
@@ -252,7 +256,7 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
       for (const std::string h : history_[i]["request"]["headers"])
       {
         size_t pos = h.find(": ");
-        req.headers.insert({h.substr(0, pos), h.substr(pos + 1)});
+        req.headers.insert({h.substr(0, pos), h.substr(pos + 2)});
       }
       req.body = history_[i]["request"]["body"];
 
@@ -261,9 +265,9 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
       for (const std::string h : history_[i]["response"]["headers"])
       {
         size_t pos = h.find(": ");
-        res.headers.insert({h.substr(0, pos), h.substr(pos + 1)});
+        res.headers.insert({h.substr(0, pos), h.substr(pos + 2)});
       }
-      res.body = history_[i]["response"]["body"];
+      res.body = history_[i]["response"]["body"].dump();
 
       return {req, res};
     }
@@ -272,13 +276,18 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
   throw std::logic_error("Request not found");
 }
 
-std::vector< std::string > http::session::sessionList()
+std::vector< std::string > http::session::sessionList(const std::string& path)
 {
   std::vector< std::string > sessions;
-  boost::filesystem::path dir(DATA_PATH);
+  boost::filesystem::path dir(path);
   for (boost::filesystem::directory_iterator it(dir), end; it != end; ++it)
   {
     sessions.push_back(it->path().stem().string());
   }
   return sessions;
+}
+
+std::vector< std::string > http::session::sessionList()
+{
+  return sessionList("data/");
 }
