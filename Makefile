@@ -1,9 +1,11 @@
 CXX = g++
 
 SRC = $(wildcard src/*.cpp src/repl/*.cpp src/http/*.cpp)
+TEST_SRC = $(wildcard tests/*.cpp)
 EXEC = http
 
-COMMON_FLAGS = -Wall -Wextra -std=c++14 -isystem libs -I./src/common -I./src/http -lboost_filesystem
+
+COMMON_FLAGS = -Wall -Wextra -std=c++14 -isystem libs -I./src/common -I./src/http -I./src/repl -lboost_filesystem
 DEBUG_FLAGS = -Weffc++ -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversion -Wold-style-cast -Woverloaded-virtual -Wnon-virtual-dtor -Wformat=2 -Wnull-dereference -Wdouble-promotion -Wswitch-default -Wfloat-equal -Wcast-qual -Wcast-align -Wlogical-op -fsanitize=address,undefined -g -O0 
 
 debug: out/debug/$(EXEC)
@@ -24,7 +26,11 @@ run-debug: debug
 run-release: release
 	./out/release/$(EXEC)
 
+test: $(filter-out src/main.cpp, $(SRC)) $(TEST_SRC)
+	$(CXX) $(filter-out src/main.cpp, $(SRC)) $(TEST_SRC) $(COMMON_FLAGS) -lboost_unit_test_framework -o out/test_runner
+	./out/test_runner
+
 clean:
 	rm -rf out
 
-.PHONY: debug release run-debug run-release clean
+.PHONY: debug release run-debug run-release test clean
