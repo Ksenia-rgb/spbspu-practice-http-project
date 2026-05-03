@@ -14,6 +14,24 @@ std::unique_ptr< cli::Menu > http::repl::init(cli::LoopScheduler& scheduler, sta
     },
     "Start interactive request builder");
   menu->Insert(
+    "req",
+    [&scheduler, &state](std::ostream&, const std::string& name)
+    {
+      scheduler.Stop();
+      state.req_name = name;
+      try
+      {
+        state.request = state.session.getRequest(name).first;
+        state.response = state.session.getRequest(name).second;
+        state.cli_state = state::CliState::REQ_FILE;
+      }
+      catch (...)
+      {
+        state.cli_state = state::CliState::REQ_INPUT;
+      }
+    },
+    "Start interactive request menu");
+  menu->Insert(
     "file",
     [&scheduler, &state](std::ostream&, const std::string& name, const std::string& path)
     {
@@ -29,7 +47,30 @@ std::unique_ptr< cli::Menu > http::repl::init(cli::LoopScheduler& scheduler, sta
     {
       state.req_name = name;
       std::string path = "/tmp/http_request.txt";
-      req::createTemplateFile(path);
+      try
+      {
+        req::createTemplateFile(path, state.session.getRequest(name).first);
+        state.response = state.session.getRequest(name).second;
+      }
+      catch (...)
+      {
+        req::createTemplateFile(path);
+      }
+
+      req::openTemplateFile(path);
+      req::inputFromFile(state.request, path);
+      std::remove(path.c_str());
+      scheduler.Stop();
+      state.cli_state = state::CliState::REQ_FILE;
+    },
+    "Edit a request in text editor (GNU nano by default)");
+  menu->Insert(
+    "edit",
+    [&scheduler, &state](std::ostream&, const std::string& new_name, const std::string& old_name)
+    {
+      state.req_name = new_name;
+      std::string path = "/tmp/http_request.txt";
+      req::createTemplateFile(path, state.session.getRequest(old_name).first);
       req::openTemplateFile(path);
       req::inputFromFile(state.request, path);
       std::remove(path.c_str());
@@ -39,87 +80,92 @@ std::unique_ptr< cli::Menu > http::repl::init(cli::LoopScheduler& scheduler, sta
     "Edit a request in text editor (GNU nano by default)");
   menu->Insert(
     "session",
-    [](std::ostream& out)
+    [&state](std::ostream& out)
     {
-      out << "Unknown\n";
+      out << state.session.getName() << "\n";
     },
     "Show current session name ('Unknown' if anonymous)");
   menu->Insert(
     "session-list",
-    [](std::ostream& out)
+    [&state](std::ostream& out)
     {
-      out << "Unknown\nBanking\nShop\n";
+      std::vector< std::string > session_list = session::sessionList();
+      for (size_t i = 0; i < session_list.size(); ++i)
+      {
+        out << session_list[i] << "\n";
+      }
     },
     "List all saved sessions");
   menu->Insert(
     "session-name",
-    [](std::ostream&, const std::string& name)
+    [&state](std::ostream&, const std::string& name)
     {
-      // renameSession(name)
+      state.session.setName(name);
     },
     "Name (or rename) the current session");
   menu->Insert(
     "session-rm",
-    [](std::ostream&, const std::string& name)
+    [&state](std::ostream&)
     {
-      // rmSession(name)
+      state.session.removeSession();
     },
-    "Delete the specified saved session");
+    "Delete the current session");
   menu->Insert(
     "session-switch",
-    [](std::ostream& out, const std::string& name)
+    [&state](std::ostream&, const std::string& name)
     {
-      // switchSession(name)
-      out << "switch to " << name << "\n";
+      state.session.switchSession(name);
     },
-    "Switch to another session (creates if not exists).\n        Use 'Unknown' to switch to a new "
+    "Switch to another session (creates if not exists).\n        Use 'Unknown' to switch to a "
+    "new "
     "anonymous session.");
   menu->Insert(
     "history",
-    [](std::ostream& out, int limit)
+    [&state](std::ostream& out, size_t limit)
     {
-      // getHistory(limit)
-      out << "here will be history\n";
+      out << std::setw(2) << state.session.getHistory(limit) << "\n";
     },
     "Show N last requests");
   menu->Insert(
     "history",
-    [](std::ostream& out, const std::string& mark, int limit)
+    [&state](std::ostream& out, const std::string& mark, size_t limit)
     {
-      // getHistory(limit)
-      out << "here will be history\n";
+      out << std::setw(2) << state.session.getHistoryByMark(mark, limit) << "\n";
     },
     "Show N last requests by mark");
   menu->Insert(
     "history",
-    [](std::ostream& out, const std::string& mark)
+    [&state](std::ostream& out, const std::string& name)
     {
-      // getHistory(limit)
-      out << "here will be history\n";
-    },
-    "Show 10 last requests by mark");
-  menu->Insert(
-    "history",
-    [](std::ostream& out, const std::string& name)
-    {
-      // getHistory(name)
-      out << "here will be history\n";
+      out << std::setw(2) << state.session.getHistoryByName(name) << "\n";
     },
     "Show request from history by name");
   menu->Insert(
     "mark",
-    [](std::ostream& out, const std::string& req_name, const std::string& mark)
+    [&state](std::ostream&, const std::string& mark)
     {
-      // mark(req_name, mark)
-      out << "here will be mark\n";
+      state.session.setMark(mark);
+    },
+    "Mark last request in history");
+  menu->Insert(
+    "mark",
+    [&state](std::ostream&, const std::string& req_name, const std::string& mark)
+    {
+      state.session.setMark(req_name, mark);
     },
     "Mark request in history");
   menu->Insert(
     "comment",
-    [](std::ostream& out, const std::string& req_name, const std::string& comment)
+    [&state](std::ostream&, const std::string& comment)
     {
-      // comment(req_name, comment)
-      out << "here will be mark\n";
+      state.session.setComment(comment);
+    },
+    "Comment last request in history");
+  menu->Insert(
+    "comment",
+    [&state](std::ostream&, const std::string& req_name, const std::string& comment)
+    {
+      state.session.setComment(req_name, comment);
     },
     "Comment request in history");
   menu->Insert(

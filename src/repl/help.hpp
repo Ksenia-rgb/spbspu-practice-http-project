@@ -21,7 +21,7 @@ Session management:
   session               Show current session name ("Unknown" if anonymous)
   session-list          List all saved sessions
   session-name <name>   Name (or rename) the current session
-  session-rm <name>     Delete the specified saved session
+  session-rm            Delete the current session
   session-switch <name> Switch to another session (creates if not exists).
                         Use "Unknown" to switch to a new anonymous session.
 

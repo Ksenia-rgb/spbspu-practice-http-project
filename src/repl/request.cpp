@@ -27,7 +27,7 @@ namespace
       }
       catch (const std::invalid_argument& e)
       {
-        std::cout << "Error: " << e.what() << "\n";
+        out << "Error: " << e.what() << "\n";
       }
     }
   }
@@ -154,7 +154,7 @@ void http::repl::req::setBody(models::Request& request, const std::string& body)
 {
   if (body.empty())
   {
-    request.body = json::object();
+    request.body = ordered_json::object();
     return;
   }
 
@@ -175,9 +175,9 @@ void http::repl::req::setBody(models::Request& request, const std::string& body)
 
     try
     {
-      request.body = json::parse(f);
+      request.body = ordered_json::parse(f);
     }
-    catch (const json::parse_error& e)
+    catch (const ordered_json::parse_error& e)
     {
       f.close();
       throw std::invalid_argument(
@@ -189,9 +189,9 @@ void http::repl::req::setBody(models::Request& request, const std::string& body)
   {
     try
     {
-      request.body = json::parse(body);
+      request.body = ordered_json::parse(body);
     }
-    catch (const json::parse_error& e)
+    catch (const ordered_json::parse_error& e)
     {
       throw std::invalid_argument("Invalid JSON string");
     }
@@ -201,8 +201,12 @@ void http::repl::req::setBody(models::Request& request, const std::string& body)
 void http::repl::req::reqInput(
   std::string& name, models::Request& request, std::istream& in, std::ostream& out)
 {
-  out << "req name> ";
-  std::getline(in, name);
+
+  if (name.empty())
+  {
+    out << "req name> ";
+    std::getline(in, name);
+  }
   validInput(in, out, "req method> ", request, setMethod);
   validInput(in, out, "req URL> ", request, setURL);
   validInput(in, out, "req headers> ", request, setHeaders);
@@ -221,6 +225,25 @@ void http::repl::req::createTemplateFile(const std::string& path)
   std::string template_content =
     "<METHOD> <PATH> HTTP/1.1\nHost: \nUser-Agent: HTTP-Client\nAccept: "
     "application/json\nContent-Type: application/json\nContent-Length: \n\n<BODY>";
+  std::ofstream file(path);
+  if (!file.is_open())
+  {
+    throw std::runtime_error("Error: can not create a template file");
+  }
+  file << template_content;
+  file.close();
+}
+
+void http::repl::req::createTemplateFile(const std::string& path, const models::Request& request)
+{
+  std::string template_content = request.method + ' ' + request.path + " HTTP/1.1\n";
+  template_content += "Host: " + request.host + '\n';
+  for (const auto& pair : request.headers)
+  {
+    template_content += pair.first + ": " + pair.second + "\n";
+  }
+  template_content += '\n';
+  template_content += request.body.dump();
   std::ofstream file(path);
   if (!file.is_open())
   {
@@ -353,7 +376,7 @@ std::unique_ptr< cli::Menu > http::repl::req::reqInit(
     [&request, &response](std::ostream& out)
     {
       response = send::sendRequest(request);
-      json json_response = response::convertResponseToJson(response);
+      ordered_json json_response = response::convertResponseToJson(response);
       out << std::setw(2) << json_response << "\n";
     },
     "Send the HTTP request and display response (JSON format)");

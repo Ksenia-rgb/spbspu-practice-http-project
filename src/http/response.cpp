@@ -2,22 +2,22 @@
 #include <httplib.h>
 #include <fstream>
 
-json http::response::convertResponseToJson(const models::Response& response)
+ordered_json http::response::convertResponseToJson(const models::Response& response)
 {
-  json json_response;
+  ordered_json json_response;
   json_response["status-line"] =
     std::to_string(response.status) + ' ' + httplib::status_message(response.status);
-  json_response["headers"] = json::array();
+  json_response["headers"] = ordered_json::array();
   for (const auto& header : response.headers)
   {
     json_response["headers"].push_back(header.first + ": " + header.second);
   }
-  json body;
+  ordered_json body;
   try
   {
-    body = json::parse(response.body);
+    body = ordered_json::parse(response.body);
   }
-  catch (const json::parse_error& e)
+  catch (const ordered_json::parse_error& e)
   {
     json_response["body"] = response.body;
     return json_response;
@@ -34,7 +34,7 @@ void http::response::saveResponse(const models::Response& response, const std::s
     throw std::logic_error("Request did not execute");
   }
 
-  json json_response = convertResponseToJson(response);
+  ordered_json json_response = convertResponseToJson(response);
   std::ofstream file(path);
   if (!file.is_open())
   {

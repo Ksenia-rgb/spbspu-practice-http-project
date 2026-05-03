@@ -7,7 +7,7 @@
 #include <models.hpp>
 #include <ostream>
 
-using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace http
 {
@@ -19,6 +19,7 @@ namespace http
         std::string& name, models::Request& request, std::istream& in, std::ostream& out);
       void inputFromFile(models::Request& request, const std::string& path);
       void createTemplateFile(const std::string& path);
+      void createTemplateFile(const std::string& path, const models::Request& request);
       void openTemplateFile(const std::string& path);
       void show(std::ostream& out, const std::string& name, const models::Request& request);
       void setName(std::string& name, const std::string& new_name);
