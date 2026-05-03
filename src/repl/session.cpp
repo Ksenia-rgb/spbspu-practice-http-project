@@ -1,9 +1,9 @@
 #include "session.hpp"
-#include <fstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <boost/filesystem.hpp>
+#include <fstream>
+#include <stdexcept>
 #include "json.hh"
 #include "models.hpp"
 
@@ -12,9 +12,9 @@ namespace
   const std::string DATA_PATH = "data/";
 }
 
-http::session::Session::Session(const Session& rhs, const std::string& name):
-  name_(name),
-  history_(rhs.history_)
+http::session::Session::Session(const Session& rhs, const std::string& name)
+  : name_(name)
+  , history_(rhs.history_)
 {
   if (name == "Unknown")
   {
@@ -124,7 +124,8 @@ ordered_json http::session::Session::getHistoryByName(const std::string& reqName
   return res;
 }
 
-ordered_json http::session::Session::getHistoryByMark(const std::string& markName, size_t limit) const
+ordered_json http::session::Session::getHistoryByMark(
+  const std::string& markName, size_t limit) const
 {
   ordered_json res;
   for (size_t i = history_.size(); limit && i; --i)
@@ -179,8 +180,9 @@ void http::session::Session::setComment(const std::string& reqName, const std::s
   throw std::logic_error("Request not found");
 }
 
-void http::session::Session::addRequest(
-    const std::string& name, const http::models::Request& request, const http::models::Response& response)
+void http::session::Session::addRequest(const std::string& name,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   ordered_json j = createRequest(name, "", "", request, response);
   history_.push_back(j);
@@ -191,14 +193,16 @@ void http::session::Session::addRequest(
   save();
 }
 
-void http::session::Session::changeRequest(
-    const std::string& name, const http::models::Request& request, const http::models::Response& response)
+void http::session::Session::changeRequest(const std::string& name,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   for (size_t i = 0; i < history_.size(); ++i)
   {
     if (history_[i]["name"] == name)
     {
-      history_[i] = createRequest(name, history_[i]["mark"], history_[i]["comment"], request, response);
+      history_[i] =
+        createRequest(name, history_[i]["mark"], history_[i]["comment"], request, response);
       save();
       return;
     }
@@ -206,8 +210,11 @@ void http::session::Session::changeRequest(
   throw std::logic_error("Request not found");
 }
 
-ordered_json http::session::Session::createRequest(const std::string& name, const std::string& mark,
-    const std::string& comment, const http::models::Request& request, const http::models::Response& response)
+ordered_json http::session::Session::createRequest(const std::string& name,
+  const std::string& mark,
+  const std::string& comment,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   ordered_json j;
   j["name"] = name;
@@ -233,13 +240,22 @@ ordered_json http::session::Session::createRequest(const std::string& name, cons
   {
     res["headers"].push_back(pair.first + ": " + pair.second);
   }
-  res["body"] = response.body;
+  try
+  {
+    res["body"] = ordered_json::parse(response.body);
+  }
+  catch (const ordered_json::parse_error& e)
+  {
+    res["body"] = response.body;
+  }
+
   j["response"] = res;
 
   return j;
 }
 
-std::pair< http::models::Request, http::models::Response > http::session::Session::getRequest(const std::string& name)
+std::pair< http::models::Request, http::models::Response > http::session::Session::getRequest(
+  const std::string& name)
 {
   for (size_t i = 0; i < history_.size(); ++i)
   {
@@ -261,9 +277,9 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
       for (const std::string h : history_[i]["response"]["headers"])
       {
         size_t pos = h.find(": ");
-        res.headers.insert({h.substr(0, pos), h.substr(pos + 1)});
+        res.headers.insert({h.substr(0, pos), h.substr(pos + 2)});
       }
-      res.body = history_[i]["response"]["body"];
+      res.body = history_[i]["response"]["body"].dump();
 
       return {req, res};
     }
