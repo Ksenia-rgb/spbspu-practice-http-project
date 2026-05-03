@@ -2,8 +2,11 @@ CXX = g++
 
 SRC = $(wildcard src/*.cpp src/repl/*.cpp src/http/*.cpp)
 TEST_SRC = $(wildcard tests/*.cpp)
+SERVER_SRC = tests/server/server.cpp
+
 EXEC = http
 TEST_EXEC = test_http
+SERVER_EXEC = server
 
 ARGS=
 
@@ -12,7 +15,12 @@ DEBUG_FLAGS = -Weffc++ -Wpedantic -Werror -Wshadow -Wconversion -Wsign-conversio
 
 debug: out/debug/$(EXEC)
 release: out/release/$(EXEC)
-test: out/test/$(TEST_EXEC)
+test: out/test/$(SERVER_EXEC) out/test/$(TEST_EXEC)
+	@./out/test/$(SERVER_EXEC) & SERVER_PID=$$!; \
+	./out/test/$(TEST_EXEC); \
+	EXIT_CODE=$$?; \
+	kill $$SERVER_PID; \
+	exit $$EXIT_CODE
 
 out/debug/$(EXEC): $(SRC) | out/debug
 	$(CXX) $(SRC) $(COMMON_FLAGS) $(DEBUG_FLAGS) -o $@
@@ -21,7 +29,10 @@ out/release/$(EXEC): $(SRC) | out/release
 	$(CXX) $(SRC) $(COMMON_FLAGS) -o $@
 
 out/test/$(TEST_EXEC): $(TEST_SRC) | out/test
-	$(CXX) $(filter-out src/main.cpp, $(SRC)) $(TEST_SRC) $(COMMON_FLAGS) -o $@ && ./$@
+	$(CXX) $(filter-out src/main.cpp, $(SRC)) $(TEST_SRC) $(COMMON_FLAGS) -o $@
+
+out/test/$(SERVER_EXEC): $(SERVER_SRC) | out/test
+	$(CXX) $(SERVER_SRC) $(COMMON_FLAGS) -o $@
 
 out/%:
 	mkdir -p $@
