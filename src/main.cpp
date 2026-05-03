@@ -4,10 +4,20 @@
 #include <memory>
 #include "repl/app_state.hpp"
 #include "repl/repl.hpp"
+#include "repl/session.hpp"
 
-int main()
+int main(int argc, char** argv)
 {
   http::repl::state::AppState state;
+  if (argc == 2)
+  {
+    state.session.switchSession(argv[1]);
+  }
+  else if (argc > 2)
+  {
+    std::cerr << "Too many arguments\n";
+    return 1;
+  }
 
   while (true)
   {
@@ -63,6 +73,14 @@ int main()
       }
       else
       {
+        try
+        {
+          state.session.changeRequest(state.req_name, state.request, state.response);
+        }
+        catch (const std::logic_error&)
+        {
+          state.session.addRequest(state.req_name, state.request, state.response);
+        }
         http::repl::state::clear(state);
       }
     }

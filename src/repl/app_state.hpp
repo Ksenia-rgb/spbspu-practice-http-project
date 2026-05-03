@@ -1,6 +1,7 @@
 #ifndef APP_STATE_HPP
 #define APP_STATE_HPP
 #include <models.hpp>
+#include "session.hpp"
 
 namespace http
 {
@@ -24,6 +25,7 @@ namespace http
         std::string req_name;
         models::Request request;
         models::Response response;
+        session::Session session;
       };
 
       void clear(AppState& state);

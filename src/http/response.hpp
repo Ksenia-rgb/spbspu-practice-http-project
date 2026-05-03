@@ -4,13 +4,13 @@
 #include <models.hpp>
 #include <nlohmann/json.hpp>
 
-using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace http
 {
   namespace response
   {
-    json convertResponseToJson(const models::Response& response);
+    ordered_json convertResponseToJson(const models::Response& response);
     void saveResponse(const models::Response& response, const std::string& path);
   }
 }

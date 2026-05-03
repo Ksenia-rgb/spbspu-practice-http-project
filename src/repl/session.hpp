@@ -1,9 +1,9 @@
 #ifndef SESSION_HPP
 #define SESSION_HPP
-#include <json.hh>
-#include <models.hpp>
 #include <string>
 #include <vector>
+#include <json.hh>
+#include <models.hpp>
 
 using ordered_json = nlohmann::ordered_json;
 
@@ -32,11 +32,14 @@ namespace http
       void setMark(const std::string& reqName, const std::string& markName);
       void setComment(const std::string& comment);
       void setComment(const std::string& reqName, const std::string& comment);
-      void addRequest(
-          const std::string& name, const http::models::Request& request, const http::models::Response& response);
-      void changeRequest(
-          const std::string& name, const http::models::Request& request, const http::models::Response& response);
-      std::pair< http::models::Request, http::models::Response > getRequest(const std::string& name);
+      void addRequest(const std::string& name,
+        const http::models::Request& request,
+        const http::models::Response& response);
+      void changeRequest(const std::string& name,
+        const http::models::Request& request,
+        const http::models::Response& response);
+      std::pair< http::models::Request, http::models::Response > getRequest(
+        const std::string& name);
 
     private:
       std::string name_ = "Unknown";
@@ -44,8 +47,11 @@ namespace http
       const std::string dataPath_ = "data/";
 
       void read();
-      ordered_json createRequest(const std::string& name, const std::string& mark, const std::string& comment,
-          const http::models::Request& request, const http::models::Response& response);
+      ordered_json createRequest(const std::string& name,
+        const std::string& mark,
+        const std::string& comment,
+        const http::models::Request& request,
+        const http::models::Response& response);
     };
 
     std::vector< std::string > sessionList(const std::string& path);
