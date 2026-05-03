@@ -1,22 +1,278 @@
 [
   {
-    "name": "",
-    "mark": "",
-    "comment": "",
-    "request ": {
+    "name": "my_req",
+    "mark": "my_mark",
+    "comment": "its my comment",
+    "request": {
       "method": "GET",
-      "host": "ex.ru",
+      "host": "example.com",
       "path": "/api",
       "headers": [
         "header: value",
         "header: value"
       ],
-      "body": {}
+      "body": {
+        "number": 1,
+        "string": "2",
+        "massive": [
+          1,
+          2,
+          3
+        ]
+      }
     },
     "response": {
       "status": 200,
       "headers": [],
       "body": {}
+    }
+  },
+  {
+    "name": "get_users",
+    "mark": "smoke",
+    "comment": "получение списка пользователей",
+    "request": {
+      "method": "GET",
+      "host": "api.test.com",
+      "path": "/users",
+      "headers": [
+        "Accept: application/json",
+        "Authorization: Bearer token123"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "users": [
+          {
+            "id": 1,
+            "name": "Alice",
+            "active": true
+          },
+          {
+            "id": 2,
+            "name": "Bob",
+            "active": false
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "create_user",
+    "mark": "post",
+    "comment": "создание нового пользователя",
+    "request": {
+      "method": "POST",
+      "host": "api.test.com",
+      "path": "/users",
+      "headers": [
+        "Content-Type: application/json",
+        "Authorization: Bearer token123"
+      ],
+      "body": {
+        "name": "Charlie",
+        "age": 21,
+        "email": "charlie@example.com",
+        "roles": [
+          "user",
+          "admin"
+        ],
+        "profile": {
+          "city": "Saint Petersburg",
+          "country": "RU"
+        }
+      }
+    },
+    "response": {
+      "status": 201,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "id": 1001,
+        "created": true
+      }
+    }
+  },
+  {
+    "name": "update_user",
+    "mark": "put",
+    "comment": "частичное обновление данных",
+    "request": {
+      "method": "PUT",
+      "host": "api.test.com",
+      "path": "/users/1001",
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "name": "Charlie Updated",
+        "age": 22,
+        "active": false,
+        "tags": [
+          "vip",
+          "beta",
+          "test"
+        ]
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "success": true,
+        "updatedFields": [
+          "name",
+          "age",
+          "active"
+        ]
+      }
+    }
+  },
+  {
+    "name": "delete_user",
+    "mark": "delete",
+    "comment": "удаление сущности",
+    "request": {
+      "method": "DELETE",
+      "host": "api.test.com",
+      "path": "/users/1001",
+      "headers": [
+        "Authorization: Bearer token123"
+      ],
+      "body": null
+    },
+    "response": {
+      "status": 204,
+      "headers": [],
+      "body": {}
+    }
+  },
+  {
+    "name": "complex_payload",
+    "mark": "edge",
+    "comment": "проверка сложного вложенного тела",
+    "request": {
+      "method": "POST",
+      "host": "localhost",
+      "path": "/api/v1/complex",
+      "headers": [
+        "Content-Type: application/json",
+        "X-Request-Id: 550e8400-e29b-41d4-a716-446655440000",
+        "X-Feature-Flag: true"
+      ],
+      "body": {
+        "number": 1234567890,
+        "negative": -42,
+        "float": 3.14159,
+        "boolTrue": true,
+        "boolFalse": false,
+        "nullValue": null,
+        "emptyString": "",
+        "unicode": "Привет, мир!",
+        "specialChars": "!@#$%^&*()_+-=[]{};':\",.<>/?",
+        "array": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "nested": {
+          "level1": {
+            "level2": {
+              "level3": {
+                "value": "deep"
+              }
+            }
+          }
+        }
+      }
+    },
+    "response": {
+      "status": 400,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "error": "Invalid payload",
+        "code": 4001,
+        "details": [
+          "field `nested.level1.level2.level3.value` is required"
+        ]
+      }
+    }
+  },
+  {
+    "name": "login",
+    "mark": "auth",
+    "comment": "авторизация пользователя",
+    "request": {
+      "method": "POST",
+      "host": "auth.test.com",
+      "path": "/login",
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "username": "test_user",
+        "password": "pass1234"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json",
+        "Set-Cookie: sessionId=abc123"
+      ],
+      "body": {
+        "token": "jwt.token.here",
+        "expiresIn": 3600
+      }
+    }
+  },
+  {
+    "name": "list_products",
+    "mark": "pagination",
+    "comment": "проверка пагинации и фильтров",
+    "request": {
+      "method": "GET",
+      "host": "shop.test.com",
+      "path": "/products?page=2&limit=5&sort=price_desc",
+      "headers": [
+        "Accept: application/json"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "page": 2,
+        "limit": 5,
+        "total": 27,
+        "items": [
+          {
+            "id": 11,
+            "title": "Keyboard",
+            "price": 49.99
+          },
+          {
+            "id": 12,
+            "title": "Mouse",
+            "price": 19.99
+          }
+        ]
+      }
     }
   }
 ]
