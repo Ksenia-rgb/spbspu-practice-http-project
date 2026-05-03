@@ -1,6 +1,6 @@
 #include "repl.hpp"
 #include <cstdio>
-#include "help.hpp"
+#include <help.hpp>
 
 std::unique_ptr< cli::Menu > http::repl::init(cli::LoopScheduler& scheduler, state::AppState& state)
 {
