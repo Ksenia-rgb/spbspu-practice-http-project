@@ -46,7 +46,7 @@ void http::session::Session::setName(const std::string& name)
   {
     boost::filesystem::rename(dataPath_ + name_ + ".json", dataPath_ + name + ".json");
   }
-  catch (boost::filesystem::filesystem_error)
+  catch (const boost::filesystem::filesystem_error&)
   {
     std::ofstream out(dataPath_ + name + ".json");
     out << history_.dump(2);
@@ -276,7 +276,7 @@ std::pair< http::models::Request, http::models::Response > http::session::Sessio
   throw std::logic_error("Request not found");
 }
 
-std::vector< std::string > sessionList(const std::string& path)
+std::vector< std::string > http::session::sessionList(const std::string& path)
 {
   std::vector< std::string > sessions;
   boost::filesystem::path dir(path);
