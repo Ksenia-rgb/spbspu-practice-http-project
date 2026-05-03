@@ -1,7 +1,7 @@
 [
   {
     "name": "my_req",
-    "mark": "my_mark",
+    "mark": "base",
     "comment": "its my comment",
     "request": {
       "method": "GET",
@@ -29,7 +29,7 @@
   },
   {
     "name": "get_users",
-    "mark": "smoke",
+    "mark": "users",
     "comment": "получение списка пользователей",
     "request": {
       "method": "GET",
@@ -63,9 +63,34 @@
     }
   },
   {
+    "name": "get_user_by_id",
+    "mark": "users",
+    "comment": "получение пользователя по id",
+    "request": {
+      "method": "GET",
+      "host": "api.test.com",
+      "path": "/users/42",
+      "headers": [
+        "Accept: application/json"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "id": 42,
+        "name": "Dmitry",
+        "active": true
+      }
+    }
+  },
+  {
     "name": "create_user",
-    "mark": "post",
-    "comment": "создание нового пользователя",
+    "mark": "users",
+    "comment": "создание пользователя",
     "request": {
       "method": "POST",
       "host": "api.test.com",
@@ -101,8 +126,8 @@
   },
   {
     "name": "update_user",
-    "mark": "put",
-    "comment": "частичное обновление данных",
+    "mark": "users",
+    "comment": "обновление пользователя",
     "request": {
       "method": "PUT",
       "host": "api.test.com",
@@ -138,8 +163,8 @@
   },
   {
     "name": "delete_user",
-    "mark": "delete",
-    "comment": "удаление сущности",
+    "mark": "users",
+    "comment": "удаление пользователя",
     "request": {
       "method": "DELETE",
       "host": "api.test.com",
@@ -153,61 +178,6 @@
       "status": 204,
       "headers": [],
       "body": {}
-    }
-  },
-  {
-    "name": "complex_payload",
-    "mark": "edge",
-    "comment": "проверка сложного вложенного тела",
-    "request": {
-      "method": "POST",
-      "host": "localhost",
-      "path": "/api/v1/complex",
-      "headers": [
-        "Content-Type: application/json",
-        "X-Request-Id: 550e8400-e29b-41d4-a716-446655440000",
-        "X-Feature-Flag: true"
-      ],
-      "body": {
-        "number": 1234567890,
-        "negative": -42,
-        "float": 3.14159,
-        "boolTrue": true,
-        "boolFalse": false,
-        "nullValue": null,
-        "emptyString": "",
-        "unicode": "Привет, мир!",
-        "specialChars": "!@#$%^&*()_+-=[]{};':\",.<>/?",
-        "array": [
-          0,
-          1,
-          2,
-          3,
-          4
-        ],
-        "nested": {
-          "level1": {
-            "level2": {
-              "level3": {
-                "value": "deep"
-              }
-            }
-          }
-        }
-      }
-    },
-    "response": {
-      "status": 400,
-      "headers": [
-        "Content-Type: application/json"
-      ],
-      "body": {
-        "error": "Invalid payload",
-        "code": 4001,
-        "details": [
-          "field `nested.level1.level2.level3.value` is required"
-        ]
-      }
     }
   },
   {
@@ -239,13 +209,58 @@
     }
   },
   {
+    "name": "refresh_token",
+    "mark": "auth",
+    "comment": "обновление токена",
+    "request": {
+      "method": "POST",
+      "host": "auth.test.com",
+      "path": "/refresh",
+      "headers": [
+        "Authorization: Bearer old_token"
+      ],
+      "body": {
+        "refreshToken": "refresh_token_value"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "token": "new.jwt.token",
+        "expiresIn": 3600
+      }
+    }
+  },
+  {
+    "name": "logout",
+    "mark": "auth",
+    "comment": "выход из системы",
+    "request": {
+      "method": "POST",
+      "host": "auth.test.com",
+      "path": "/logout",
+      "headers": [
+        "Authorization: Bearer jwt.token.here"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 204,
+      "headers": [],
+      "body": {}
+    }
+  },
+  {
     "name": "list_products",
-    "mark": "pagination",
-    "comment": "проверка пагинации и фильтров",
+    "mark": "catalog",
+    "comment": "получение списка товаров",
     "request": {
       "method": "GET",
       "host": "shop.test.com",
-      "path": "/products?page=2&limit=5&sort=price_desc",
+      "path": "/products?page=1&limit=10",
       "headers": [
         "Accept: application/json"
       ],
@@ -257,8 +272,8 @@
         "Content-Type: application/json"
       ],
       "body": {
-        "page": 2,
-        "limit": 5,
+        "page": 1,
+        "limit": 10,
         "total": 27,
         "items": [
           {
@@ -272,6 +287,215 @@
             "price": 19.99
           }
         ]
+      }
+    }
+  },
+  {
+    "name": "get_product",
+    "mark": "catalog",
+    "comment": "получение товара по id",
+    "request": {
+      "method": "GET",
+      "host": "shop.test.com",
+      "path": "/products/11",
+      "headers": [
+        "Accept: application/json"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "id": 11,
+        "title": "Keyboard",
+        "price": 49.99,
+        "inStock": true
+      }
+    }
+  },
+  {
+    "name": "create_product",
+    "mark": "catalog",
+    "comment": "создание товара",
+    "request": {
+      "method": "POST",
+      "host": "shop.test.com",
+      "path": "/products",
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "title": "Headphones",
+        "price": 89.5,
+        "stock": 15,
+        "categories": [
+          "audio",
+          "accessories"
+        ]
+      }
+    },
+    "response": {
+      "status": 201,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "id": 99,
+        "created": true
+      }
+    }
+  },
+  {
+    "name": "create_order",
+    "mark": "orders",
+    "comment": "создание заказа",
+    "request": {
+      "method": "POST",
+      "host": "shop.test.com",
+      "path": "/orders",
+      "headers": [
+        "Content-Type: application/json",
+        "Authorization: Bearer token123"
+      ],
+      "body": {
+        "userId": 42,
+        "items": [
+          {
+            "productId": 11,
+            "count": 2
+          },
+          {
+            "productId": 12,
+            "count": 1
+          }
+        ],
+        "delivery": {
+          "type": "courier",
+          "address": "Nevsky Prospect, 1"
+        }
+      }
+    },
+    "response": {
+      "status": 201,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "orderId": 5001,
+        "status": "created"
+      }
+    }
+  },
+  {
+    "name": "get_order",
+    "mark": "orders",
+    "comment": "получение заказа",
+    "request": {
+      "method": "GET",
+      "host": "shop.test.com",
+      "path": "/orders/5001",
+      "headers": [
+        "Authorization: Bearer token123"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "orderId": 5001,
+        "status": "paid",
+        "items": [
+          {
+            "productId": 11,
+            "count": 2
+          }
+        ]
+      }
+    }
+  },
+  {
+    "name": "cancel_order",
+    "mark": "orders",
+    "comment": "отмена заказа",
+    "request": {
+      "method": "DELETE",
+      "host": "shop.test.com",
+      "path": "/orders/5001",
+      "headers": [
+        "Authorization: Bearer token123"
+      ],
+      "body": {}
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "success": true,
+        "cancelled": true
+      }
+    }
+  },
+  {
+    "name": "payment_confirm",
+    "mark": "payments",
+    "comment": "подтверждение платежа",
+    "request": {
+      "method": "POST",
+      "host": "pay.test.com",
+      "path": "/payments/confirm",
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "orderId": 5001,
+        "amount": 119.98,
+        "currency": "RUB",
+        "method": "card"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "paymentId": "p_10001",
+        "status": "success"
+      }
+    }
+  },
+  {
+    "name": "payment_refund",
+    "mark": "payments",
+    "comment": "возврат платежа",
+    "request": {
+      "method": "POST",
+      "host": "pay.test.com",
+      "path": "/payments/refund",
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "paymentId": "p_10001",
+        "reason": "customer_request"
+      }
+    },
+    "response": {
+      "status": 200,
+      "headers": [
+        "Content-Type: application/json"
+      ],
+      "body": {
+        "refundId": "r_20001",
+        "status": "processed"
       }
     }
   }

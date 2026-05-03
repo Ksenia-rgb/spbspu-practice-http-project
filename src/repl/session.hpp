@@ -32,8 +32,10 @@ namespace http
       void setMark(const std::string& reqName, const std::string& markName);
       void setComment(const std::string& comment);
       void setComment(const std::string& reqName, const std::string& comment);
-      void addRequest(const std::string& name, const http::models::Request& request);
-      void changeRequest(const std::string& name, const http::models::Request& request);
+      void addRequest(
+          const std::string& name, const http::models::Request& request, const http::models::Response& response);
+      void changeRequest(
+          const std::string& name, const http::models::Request& request, const http::models::Response& response);
       std::pair< http::models::Request, http::models::Response > getRequest(const std::string& name);
 
     private:
@@ -41,6 +43,8 @@ namespace http
       ordered_json history_;
 
       void read();
+      ordered_json createRequest(const std::string& name, const std::string& mark, const std::string& comment,
+          const http::models::Request& request, const http::models::Response& response);
     };
 
     std::vector< std::string > sessionList();
