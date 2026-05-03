@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace http
 {
@@ -24,9 +24,9 @@ namespace http
       void setName(const std::string& name);
       void removeSession();
       void switchSession(const std::string& name);
-      json getHistory(size_t limit = 10) const;
-      json getHistoryByName(const std::string& reqName, size_t limit = 10) const;
-      json getHistoryByMark(const std::string& markName, size_t limit = 10) const;
+      ordered_json getHistory(size_t limit = 10) const;
+      ordered_json getHistoryByName(const std::string& reqName) const;
+      ordered_json getHistoryByMark(const std::string& markName, size_t limit = 10) const;
       void save();
       void setMark(const std::string& markName);
       void setMark(const std::string& reqName, const std::string& markName);
@@ -34,10 +34,11 @@ namespace http
       void setComment(const std::string& reqName, const std::string& comment);
       void addRequest(const std::string& name, const http::models::Request& request);
       void changeRequest(const std::string& name, const http::models::Request& request);
+      std::pair< http::models::Request, http::models::Response > getRequest(const std::string& name);
 
     private:
       std::string name_ = "Unknown";
-      json history_;
+      ordered_json history_;
 
       void read();
     };

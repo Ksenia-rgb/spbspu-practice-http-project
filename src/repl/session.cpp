@@ -3,11 +3,14 @@
 #include <stdexcept>
 #include <string>
 #include <boost/filesystem/operations.hpp>
+#include "json.hh"
 
 namespace
 {
   const std::string DATA_PATH = "data/";
 }
+
+using ordered_json = nlohmann::ordered_json;
 
 http::session::Session::Session(const Session& rhs, const std::string& name)
 {
@@ -78,9 +81,9 @@ void http::session::Session::read()
   }
 }
 
-json http::session::Session::getHistory(size_t limit) const
+ordered_json http::session::Session::getHistory(size_t limit) const
 {
-  json res;
+  ordered_json res;
   if (limit >= history_.size())
   {
     limit = history_.size();
@@ -88,6 +91,20 @@ json http::session::Session::getHistory(size_t limit) const
   for (size_t i = history_.size() - limit; i != history_.size(); ++i)
   {
     res.push_back(history_[i]);
+  }
+  return res;
+}
+
+ordered_json http::session::Session::getHistoryByName(const std::string& reqName) const
+{
+  ordered_json res;
+  for (size_t i = history_.size(); i > 0; --i)
+  {
+    json curr(history_[i - 1]);
+    if (curr["name"] == reqName)
+    {
+      res.push_back(history_[i - 1]);
+    }
   }
   return res;
 }
