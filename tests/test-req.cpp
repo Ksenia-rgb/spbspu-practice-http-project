@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(json_string_test)
 BOOST_AUTO_TEST_CASE(empty_body_test)
 {
   http::models::Request request;
-  request.body = json::object();
+  request.body = ordered_json::object();
   request.body["existing"] = "data";
   http::repl::req::setBody(request, "");
   BOOST_TEST(request.body.empty());
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(show_request_test)
   request.host = "example.com";
   request.path = "/test";
   request.headers.insert({"Content-Type", "application/json"});
-  request.body = json::parse("{\"key\": \"value\"}");
+  request.body = ordered_json::parse("{\"key\": \"value\"}");
 
   std::ostringstream out;
   http::repl::req::show(out, "test_request", request);
