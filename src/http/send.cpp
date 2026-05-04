@@ -1,7 +1,7 @@
 #include "send.hpp"
 #include <httplib.h>
+#include <models.hpp>
 #include <stdexcept>
-#include "models.hpp"
 
 http::models::Response http::send::sendRequest(const http::models::Request& req)
 {
@@ -15,8 +15,8 @@ http::models::Response http::send::sendRequest(const http::models::Request& req)
   }
   else if (req.method == "POST")
   {
-    res = cli.Post(
-        req.path, httplib::Headers(req.headers.begin(), req.headers.end()), req.body.dump(), "application/json");
+    res = cli.Post(req.path, httplib::Headers(req.headers.begin(), req.headers.end()),
+      req.body.dump(), "application/json");
   }
   else if (req.method == "HEAD")
   {

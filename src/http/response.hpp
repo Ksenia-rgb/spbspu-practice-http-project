@@ -1,8 +1,8 @@
 #ifndef RESPONSE_HPP
 #define RESPONSE_HPP
 
+#include <json.hh>
 #include <models.hpp>
-#include <nlohmann/json.hpp>
 
 using ordered_json = nlohmann::ordered_json;
 

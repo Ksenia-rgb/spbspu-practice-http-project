@@ -1,16 +1,17 @@
 #include "session.hpp"
-#include <fstream>
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <boost/filesystem.hpp>
-#include "json.hh"
-#include "models.hpp"
+#include <fstream>
+#include <json.hh>
+#include <models.hpp>
+#include <stdexcept>
 
-http::session::Session::Session(const Session& rhs, const std::string& name, const std::string& path):
-  name_(name),
-  history_(rhs.history_),
-  dataPath_(path)
+http::session::Session::Session(
+  const Session& rhs, const std::string& name, const std::string& path)
+  : name_(name)
+  , history_(rhs.history_)
+  , dataPath_(path)
 {
   if (name == "Unknown")
   {
@@ -19,9 +20,9 @@ http::session::Session::Session(const Session& rhs, const std::string& name, con
   save();
 }
 
-http::session::Session::Session(const std::string& name, const std::string& path):
-  name_(name),
-  dataPath_(path)
+http::session::Session::Session(const std::string& name, const std::string& path)
+  : name_(name)
+  , dataPath_(path)
 {
   if (name == "Unknown")
   {
@@ -121,7 +122,8 @@ ordered_json http::session::Session::getHistoryByName(const std::string& reqName
   return res;
 }
 
-ordered_json http::session::Session::getHistoryByMark(const std::string& markName, size_t limit) const
+ordered_json http::session::Session::getHistoryByMark(
+  const std::string& markName, size_t limit) const
 {
   ordered_json res;
   for (size_t i = history_.size(); limit && i; --i)
@@ -176,8 +178,9 @@ void http::session::Session::setComment(const std::string& reqName, const std::s
   throw std::logic_error("Request not found");
 }
 
-void http::session::Session::addRequest(
-    const std::string& name, const http::models::Request& request, const http::models::Response& response)
+void http::session::Session::addRequest(const std::string& name,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   ordered_json j = createRequest(name, "", "", request, response);
   history_.push_back(j);
@@ -188,14 +191,16 @@ void http::session::Session::addRequest(
   save();
 }
 
-void http::session::Session::changeRequest(
-    const std::string& name, const http::models::Request& request, const http::models::Response& response)
+void http::session::Session::changeRequest(const std::string& name,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   for (size_t i = 0; i < history_.size(); ++i)
   {
     if (history_[i]["name"] == name)
     {
-      history_[i] = createRequest(name, history_[i]["mark"], history_[i]["comment"], request, response);
+      history_[i] =
+        createRequest(name, history_[i]["mark"], history_[i]["comment"], request, response);
       save();
       return;
     }
@@ -203,8 +208,11 @@ void http::session::Session::changeRequest(
   throw std::logic_error("Request not found");
 }
 
-ordered_json http::session::Session::createRequest(const std::string& name, const std::string& mark,
-    const std::string& comment, const http::models::Request& request, const http::models::Response& response)
+ordered_json http::session::Session::createRequest(const std::string& name,
+  const std::string& mark,
+  const std::string& comment,
+  const http::models::Request& request,
+  const http::models::Response& response)
 {
   ordered_json j;
   j["name"] = name;
@@ -243,7 +251,8 @@ ordered_json http::session::Session::createRequest(const std::string& name, cons
   return j;
 }
 
-std::pair< http::models::Request, http::models::Response > http::session::Session::getRequest(const std::string& name)
+std::pair< http::models::Request, http::models::Response > http::session::Session::getRequest(
+  const std::string& name)
 {
   for (size_t i = 0; i < history_.size(); ++i)
   {
