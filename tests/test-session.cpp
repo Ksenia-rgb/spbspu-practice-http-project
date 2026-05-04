@@ -78,7 +78,7 @@ BOOST_FIXTURE_TEST_CASE(set_name_Unknown, SessionFixture)
 BOOST_FIXTURE_TEST_CASE(session_list, SessionFixture)
 {
   Session s1("s1", getPath()), s2("s2", getPath()), s3("s3", getPath());
-  std::vector< std::string > v = {"s3", "s2", "s1"};
+  std::vector< std::string > v = {"s1", "s2", "s3"};
   BOOST_TEST(sessionList(getPath()) == v);
 }
 
